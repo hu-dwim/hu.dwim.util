@@ -16,7 +16,8 @@
 
 (def function setup-readtable ()
   (enable-sharp-boolean-syntax)
-  (enable-readtime-wrapper-syntax))
+  (enable-readtime-wrapper-syntax)
+  (enable-lambda-with-bang-args-syntax :start-character #\[ :end-character #\]))
 
 #+#.(cl:when (cl:find-package "SWANK") '(:and))
 (register-readtable-for-swank
