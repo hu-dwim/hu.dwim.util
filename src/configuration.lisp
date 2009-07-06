@@ -17,6 +17,7 @@
 (def function setup-readtable ()
   (enable-sharp-boolean-syntax)
   (enable-readtime-wrapper-syntax)
+  (enable-feature-cond-syntax)
   ;; this would also need cl-walker: (enable-lambda-with-bang-args-syntax :start-character #\[ :end-character #\])
   )
 

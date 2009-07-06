@@ -7,7 +7,8 @@
 (cl:in-package :cl-user)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (asdf:oos 'asdf:load-op :cl-syntax-sugar))
+  (asdf:oos 'asdf:load-op :cl-syntax-sugar)
+  (asdf:oos 'asdf:load-op :asdf-system-connections))
 
 (defpackage #:hu.dwim.util.system
   (:use :common-lisp :asdf :cl-syntax-sugar)
@@ -47,7 +48,10 @@
   ((:module "src"
     :components ((:file "package")
                  (:file "configuration" :depends-on ("package"))
-                 (:file "util" :depends-on ("configuration"))))))
+                 (:file "util" :depends-on ("configuration"))
+                 (:file "error-handling" :depends-on ("util"))
+                 (:module "integration"
+                          :components (#+sbcl (:file "sbcl-integration")))))))
 
 (defmethod perform ((op test-op) (system (eql (find-system :hu.dwim.util))))
   (operate 'load-op :hu.dwim.util.test)
@@ -58,3 +62,10 @@
 
 (defmethod operation-done-p ((op test-op) (system (eql (find-system :hu.dwim.util))))
   nil)
+
+(defsystem-connection cl-dwim-util-and-swank
+  :requires (:cl-dwim-util :swank)
+  :components
+  ((:module "src"
+            :components ((:module "integration"
+                                  :components ((:file "swank-integration")))))))

@@ -64,6 +64,29 @@
     (setf datum (concatenate-string "Operation not supported: " datum)))
   (apply #'error datum args))
 
+(def (macro e) with-thread-name (name &body body)
+  (declare (ignorable name))
+  #*((:sbcl
+      (with-unique-names (thread previous-name)
+        `(let* ((,thread sb-thread:*current-thread*)
+                (,previous-name (sb-thread:thread-name ,thread)))
+           (setf (sb-thread:thread-name ,thread)
+                 (concatenate-string ,previous-name ,name))
+           (unwind-protect
+                (progn
+                  ,@body)
+             (setf (sb-thread:thread-name ,thread) ,previous-name)))))
+     (t
+      `(progn
+         ,@body))))
+
+(def (macro e) with-thread-activity-description ((name) &body body)
+  "This is a debugging helper tool. Information provided here may show up in backtraces unless compiled without the debug helpers."
+  `(with-thread-name ,(if (stringp name) ;; TODO this should be a compiler-macro in sbcl itself
+                          (concatenate 'string " / " name)
+                          `(concatenate 'string " / " (string ,name)))
+     ,@body))
+
 ;;;;;;
 ;;; Otherwise
 
