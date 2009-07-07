@@ -97,7 +97,7 @@
   (when (debug-on-error? *debug-context* condition)
     (when (fboundp 'invoke-slime-debugger)
       (restart-case
-          (invoke-slime-debugger condition)
+          (funcall 'invoke-slime-debugger condition)
         (continue ()
           :report "Continue processing the error as if the debugger was not available"))))
   (values))

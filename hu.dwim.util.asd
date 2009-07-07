@@ -51,7 +51,7 @@
                  (:file "util" :depends-on ("configuration"))
                  (:file "error-handling" :depends-on ("util"))
                  (:module "integration"
-                          :components (#+sbcl (:file "sbcl-integration")))))))
+                  :components (#+sbcl (:file "sbcl-integration")))))))
 
 (defmethod perform ((op test-op) (system (eql (find-system :hu.dwim.util))))
   (operate 'load-op :hu.dwim.util.test)
