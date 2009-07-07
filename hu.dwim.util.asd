@@ -21,9 +21,9 @@
 (defvar *load-as-production-p* t)
 
 (defun project-relative-pathname (path)
-  (merge-pathnames path (component-pathname (find-system :cl-dwim-util))))
+  (merge-pathnames path (component-pathname (find-system :hu.dwim.util))))
 
-(defsystem :cl-dwim-util
+(defsystem :hu.dwim.util
   :version "1.0"
   :author ("Attila Lendvai <attila.lendvai@gmail.com>"
 	   "Tamás Borbély <tomi.borbely@gmail.com>"
@@ -49,12 +49,12 @@
                  (:file "configuration" :depends-on ("package"))
                  (:file "util" :depends-on ("configuration"))))))
 
-(defmethod perform ((op test-op) (system (eql (find-system :cl-dwim-util))))
-  (operate 'load-op :cl-dwim-util-test)
+(defmethod perform ((op test-op) (system (eql (find-system :hu.dwim.util))))
+  (operate 'load-op :hu.dwim.util.test)
   (in-package :hu.dwim.util.test)
   (eval (read-from-string "(progn
                              (stefil:funcall-test-with-feedback-message 'test))"))
   (values))
 
-(defmethod operation-done-p ((op test-op) (system (eql (find-system :cl-dwim-util))))
+(defmethod operation-done-p ((op test-op) (system (eql (find-system :hu.dwim.util))))
   nil)
