@@ -64,7 +64,7 @@
   nil)
 
 (defsystem-connection cl-dwim-util-and-swank
-  :requires (:cl-dwim-util :swank)
+  :requires (:hu.dwim.util :swank)
   :components
   ((:module "src"
             :components ((:module "integration"
