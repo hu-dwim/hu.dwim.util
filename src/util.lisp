@@ -130,3 +130,8 @@
 
 (def compiler-macro concatenate-string (&rest args)
   `(concatenate 'string ,@args))
+
+(def (function e) ensure-sequence (thing)
+  (if (typep thing 'sequence)
+      thing
+      (list thing)))
