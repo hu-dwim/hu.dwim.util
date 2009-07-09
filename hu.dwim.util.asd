@@ -63,9 +63,9 @@
 (defmethod operation-done-p ((op test-op) (system (eql (find-system :hu.dwim.util))))
   nil)
 
-(defsystem-connection cl-dwim-util-and-swank
+(defsystem-connection hu.dwim.util&swank
   :requires (:hu.dwim.util :swank)
   :components
   ((:module "src"
-            :components ((:module "integration"
-                                  :components ((:file "swank-integration")))))))
+    :components ((:module "integration"
+                  :components ((:file "swank-integration")))))))
