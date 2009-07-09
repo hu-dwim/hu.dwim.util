@@ -28,7 +28,7 @@
                                       "<error printing value>")))
               (format stream "~%---- ~S: ~A" var printed-value))))))))
 
-(def function collect-backtrace (&key (start 4) (count sb-debug::*default-backtrace-size-limit*)
+(def function collect-backtrace (&key (start 0) (count sb-debug::*default-backtrace-size-limit*)
                                       ((:verbosity sb-debug::*verbosity*) sb-debug::*verbosity*)
                                       (print-frame-source (> sb-debug::*verbosity* 1))
                                       &allow-other-keys)

@@ -9,43 +9,32 @@
 (def (special-variable e) *debug-on-error* #f
   "The default, system wide, value for debug-on-error.")
 
-(def special-variable *debug-context*)
-
 (def (generic e) debug-on-error? (context error)
   (:method (context error)
     *debug-on-error*))
 
-(def (generic e) handle-toplevel-error (context error)
-  (:method :before (context (condition serious-condition))
-    (maybe-invoke-debugger condition))
-  (:method :around (context error)
-    (with-thread-activity-description ("HANDLE-TOPLEVEL-ERROR")
-      (bind ((*debug-context* context))
-        (call-next-method)))))
-
-(def (with-macro* e) with-layered-error-handlers (debug-context level-1-error-handler abort-unit-of-work-callback
-                                                                &rest args &key
-                                                                (log-to-debug-io #t)
-                                                                (ignore-condition-callback (constantly #f))
-                                                                (level-2-error-handler (if log-to-debug-io
-                                                                                           (lambda (error &key message &allow-other-keys)
-                                                                                             (format *debug-io* "~A~%" (build-backtrace-string error :message message))
-                                                                                             (maybe-invoke-debugger error))
-                                                                                           (lambda (error &key &allow-other-keys)
-                                                                                             (maybe-invoke-debugger error))))
-                                                                (giving-up-callback (if log-to-debug-io
-                                                                                        (lambda (&key reason &allow-other-keys)
-                                                                                          (format *debug-io* "WITH-LAYERED-ERROR-HANDLERS is giving up due to: ~A~%" reason))
-                                                                                        (constantly nil)))
-                                                                (out-of-storage-callback (if log-to-debug-io
-                                                                                             (lambda (error &key &allow-other-keys)
-                                                                                               (declare (ignore error))
-                                                                                               (format *debug-io* "WITH-LAYERED-ERROR-HANDLERS is bailing out due to a STORAGE-CONDITION...~%"))
-                                                                                             (constantly nil)))
-                                                                &allow-other-keys)
+(def (with-macro* e) with-layered-error-handlers (level-1-error-handler abort-unit-of-work-callback
+                                                                        &rest args &key
+                                                                        (log-to-debug-io #t)
+                                                                        (ignore-condition-callback (constantly #f))
+                                                                        (level-2-error-handler (if log-to-debug-io
+                                                                                                   (lambda (error &key message &allow-other-keys)
+                                                                                                     (format *debug-io* "~A~%" (build-backtrace-string error :message message :timestamp (get-universal-time)))
+                                                                                                     (maybe-invoke-debugger error))
+                                                                                                   (lambda (error &key &allow-other-keys)
+                                                                                                     (maybe-invoke-debugger error))))
+                                                                        (giving-up-callback (if log-to-debug-io
+                                                                                                (lambda (&key reason &allow-other-keys)
+                                                                                                  (format *debug-io* "WITH-LAYERED-ERROR-HANDLERS is giving up due to: ~A~%" reason))
+                                                                                                (constantly nil)))
+                                                                        (out-of-storage-callback (if log-to-debug-io
+                                                                                                     (lambda (error &key &allow-other-keys)
+                                                                                                       (declare (ignore error))
+                                                                                                       (format *debug-io* "WITH-LAYERED-ERROR-HANDLERS is bailing out due to a STORAGE-CONDITION...~%"))
+                                                                                                     (constantly nil)))
+                                                                        &allow-other-keys)
   (remove-from-plistf args :ignore-condition-callback :out-of-storage-callback)
-  (bind ((level-1-error nil)
-         (*debug-context* debug-context))
+  (bind ((level-1-error nil))
     (labels ((ignore-error? (error)
                (apply ignore-condition-callback error args))
              (abort-unit-of-work (reason)
@@ -93,8 +82,8 @@
           ((serious-condition #'handle-level-1-error))
         (-body-)))))
 
-(def (function e) maybe-invoke-debugger (condition)
-  (when (debug-on-error? *debug-context* condition)
+(def (function e) maybe-invoke-debugger (condition &key context)
+  (when (debug-on-error? context condition)
     (when (fboundp 'invoke-slime-debugger)
       (restart-case
           (funcall 'invoke-slime-debugger condition)
@@ -172,7 +161,7 @@
   (awhen (find-package "BORDEAUX-THREADS")
     (funcall (find-symbol "THREAD-NAME" it) (funcall (find-symbol "CURRENT-THREAD" it)))))
 
-(def (function e) build-backtrace-string (error &key message)
+(def (function e) build-backtrace-string (error &key message timestamp)
   "Message may also be a list, in which case FORMAT is applied on it."
   (with-backtrace-bindings
     (block building
@@ -181,12 +170,11 @@
                         (handler-bind ((serious-condition
                                         (lambda (nested-error2)
                                           (declare (ignore nested-error2))
-                                          (return-from building "Failed to log backtrace due to multiple nested errors. Giving up..."))))
-                          (return-from building (format nil "Failed to log backtrace due to: ~A. The orignal error is: ~A" nested-error error))))))
+                                          (return-from building "Failed to build backtrace due to multiple nested errors. Giving up..."))))
+                          (return-from building (format nil "Failed to build backtrace due to: ~A. The orignal error is: ~A" nested-error error))))))
         (with-output-to-string (*standard-output*)
-          (format t "~%*** At: ~A" (aif (find-package "LOCAL-TIME")
-                                        (funcall (find-symbol "FORMAT-RFC3339-TIMESTRING" it) nil (funcall (find-symbol "NOW" it)))
-                                        (get-universal-time)))
+          (when timestamp
+            (format t "~%*** At: ~A" timestamp))
           (when message
             (format t "~%*** Message:~%")
             (apply #'format t (ensure-list message)))
@@ -194,7 +182,7 @@
             (format t "~%*** In thread: ~A" it))
           (format t "~%*** Error:~%~A~%*** Backtrace:~%" error)
           (if (fboundp 'collect-backtrace)
-              (bind ((backtrace (funcall 'collect-backtrace))
+              (bind ((backtrace (funcall 'collect-backtrace :start 6))
                      (*print-pretty* #f))
                 (iter (for stack-frame :in backtrace)
                       (for index :upfrom 0)
