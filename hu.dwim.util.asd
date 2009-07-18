@@ -41,6 +41,7 @@
                :anaphora
                :iterate
                :defclass-star
+               :swank
                :closer-mop
                :cl-def
                :cl-syntax-sugar)
