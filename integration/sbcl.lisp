@@ -6,7 +6,8 @@
 
 (in-package :hu.dwim.util)
 
-(def special-variable *special-variables-to-print-with-backtrace* '())
+(def special-variable *special-variables-to-print-with-backtrace* nil)
+
 (def special-variable *current-backtrace-special-variable-values*)
 
 (def function %print-special-variables-for-frame ()

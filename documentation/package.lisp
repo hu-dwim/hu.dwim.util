@@ -6,9 +6,9 @@
 
 (in-package :common-lisp-user)
 
-(defpackage :hu.dwim.util.test
-  (:use :hu.dwim.common-lisp
-        :hu.dwim.def
+(defpackage :hu.dwim.util.documentation
+  (:use :hu.dwim.def
+        :hu.dwim.defclass-star
+        :hu.dwim.syntax-sugar
         :hu.dwim.util
-        :hu.dwim.stefil
-        :hu.dwim.syntax-sugar))
+        :hu.dwim.wui))

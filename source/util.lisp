@@ -7,6 +7,13 @@
 (in-package :hu.dwim.util)
 
 ;;;;;;
+;;; Misc
+
+(def (macro e) eval-always (&body body)
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     ,@body))
+
+;;;;;;
 ;;; Anaphoric extensions
 
 (def (macro e) if-bind (var test &body then/else)
@@ -46,12 +53,6 @@
      ,@body))
 
 ;;;;;;
-;;; Path related
-
-(def (function e) system-relative-pathname (system path)
-  (merge-pathnames path (asdf:component-pathname (asdf:find-system system))))
-
-;;;;;;
 ;;; Development marks
 
 (def (function e) not-yet-implemented (&optional (datum "Not yet implemented." datum-p) &rest args)
@@ -63,6 +64,9 @@
   (when datum-p
     (setf datum (concatenate-string "Operation not supported: " datum)))
   (apply #'error datum args))
+
+;;;;;;
+;;; Thread name
 
 (def (macro e) with-thread-name (name &body body)
   (declare (ignorable name))
@@ -121,6 +125,18 @@
                             otherwise
                             (list :error "Cannot find slot ~A in class ~A" slot-name class-or-name)))))
 
+(def (function ioe) find-direct-slot (class-or-name slot-name &key (otherwise nil otherwise?))
+  (or (find slot-name
+            (the list
+              (closer-mop:class-direct-slots (if (symbolp class-or-name)
+                                                 (find-class class-or-name)
+                                                 class-or-name)))
+            :key 'closer-mop:slot-definition-name
+            :test 'eq)
+      (handle-otherwise (if otherwise?
+                            otherwise
+                            (list :error "Cannot find direct slot ~A in class ~A" slot-name class-or-name)))))
+
 ;;;;;;
 ;;; String related
 
@@ -135,3 +151,41 @@
   (if (typep thing 'sequence)
       thing
       (list thing)))
+
+;;;;;;
+;;; Pathname related
+
+(def (function e) guess-file-type (pathname)
+  ;; TODO: KLUDGE: not portable, etc.
+  (bind ((type (pathname-type pathname)))
+    (switch (type :test #'string=)
+      ("asd" :asd)
+      ("lisp" :lisp)
+      (t
+       (bind ((result (trivial-shell:shell-command (concatenate-string "file " (namestring pathname)))))
+         (cond ((search "text" result) :text)
+               (t :binary)))))))
+
+;;;;;;
+;;;; Sequence related
+
+(def (function e) collect-if (predicate sequence)
+  "Collect elements from SEQUENCE for which the PREDICATE is true."
+  (remove-if (complement predicate) sequence))
+
+(def (function e) collect-if-typep (type sequence)
+  "Collect elements from SEQUENCE with the given TYPE."
+  (collect-if (lambda (element) (typep element type)) sequence))
+
+;;;;;;
+;;; Place related
+
+(def macro notf (&rest places)
+  `(setf ,@(iter (for place in places)
+                 (collect place)
+                 (collect `(not ,place)))))
+
+(def (macro e) clearf (&rest places)
+  `(setf ,@(iter (for place in places)
+                 (collect place)
+                 (collect nil))))

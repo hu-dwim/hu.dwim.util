@@ -1,4 +1,4 @@
-;; -*- mode: Lisp; Syntax: Common-Lisp; -*-
+;;; -*- mode: Lisp; Syntax: Common-Lisp; -*-
 ;;;
 ;;; Copyright (c) 2009 by the authors.
 ;;;
@@ -6,4 +6,4 @@
 
 (in-package :hu.dwim.util.test)
 
-(def (suite e) (test :in root-suite))
+(def suite* (test :in root-suite))
