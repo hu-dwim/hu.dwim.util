@@ -90,10 +90,8 @@
               (unless ,context-instance
                 (error ,',(concatenate-string "Called with nil " (string-downcase name))))
               ,@forms)))
-
        (defun ,has-checker-name ()
          (boundp ',special-var-name))
-
        ;; KLUDGE: the rest is obsolete and will be dropped eventually
        (defmacro ,in-macro-name (var-name-or-slot-name-list &body forms)
          (bind ((slots (when (listp var-name-or-slot-name-list)

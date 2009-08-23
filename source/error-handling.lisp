@@ -197,4 +197,3 @@
                   (format t "~%~S:" decorator)))
               (funcall decorator)))
           (format t "~%*** End of error details"))))))
-

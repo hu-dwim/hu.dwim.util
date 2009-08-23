@@ -57,12 +57,12 @@
 
 (def (function e) not-yet-implemented (&optional (datum "Not yet implemented." datum-p) &rest args)
   (when datum-p
-    (setf datum (concatenate-string "Not yet implemented: " datum)))
+    (setf datum (concatenate 'string "Not yet implemented: " datum)))
   (apply #'cerror "Ignore and continue" datum args))
 
 (def (function e) operation-not-supported (&optional (datum "Operation not supported." datum-p) &rest args)
   (when datum-p
-    (setf datum (concatenate-string "Operation not supported: " datum)))
+    (setf datum (concatenate 'string "Operation not supported: " datum)))
   (apply #'error datum args))
 
 ;;;;;;
@@ -75,7 +75,7 @@
         `(let* ((,thread sb-thread:*current-thread*)
                 (,previous-name (sb-thread:thread-name ,thread)))
            (setf (sb-thread:thread-name ,thread)
-                 (concatenate-string ,previous-name ,name))
+                 (concatenate 'string ,previous-name ,name))
            (unwind-protect
                 (progn
                   ,@body)
@@ -138,21 +138,6 @@
                             (list :error "Cannot find direct slot ~A in class ~A" slot-name class-or-name)))))
 
 ;;;;;;
-;;; String related
-
-(def (function eo) concatenate-string (&rest args)
-  ;; don't inline, otherwise the compiler macro is kicked
-  (apply #'concatenate 'string args))
-
-(def compiler-macro concatenate-string (&rest args)
-  `(concatenate 'string ,@args))
-
-(def (function e) ensure-sequence (thing)
-  (if (typep thing 'sequence)
-      thing
-      (list thing)))
-
-;;;;;;
 ;;; Pathname related
 
 (def (function e) guess-file-type (pathname)
@@ -162,12 +147,17 @@
       ("asd" :asd)
       ("lisp" :lisp)
       (t
-       (bind ((result (trivial-shell:shell-command (concatenate-string "file " (namestring pathname)))))
+       (bind ((result (trivial-shell:shell-command (concatenate 'string "file " (namestring pathname)))))
          (cond ((search "text" result) :text)
                (t :binary)))))))
 
 ;;;;;;
 ;;;; Sequence related
+
+(def (function e) ensure-sequence (thing)
+  (if (typep thing 'sequence)
+      thing
+      (list thing)))
 
 (def (function e) collect-if (predicate sequence)
   "Collect elements from SEQUENCE for which the PREDICATE is true."
