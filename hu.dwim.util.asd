@@ -18,7 +18,8 @@
   :depends-on (:hu.dwim.common-lisp
                :hu.dwim.def
                :hu.dwim.defclass-star+hu.dwim.def
-               :hu.dwim.syntax-sugar+swank)
+               :hu.dwim.syntax-sugar+swank
+               :trivial-shell)
   :components ((:module "source"
                 :components ((:file "configuration" :depends-on ("package"))
                              (:file "dynamic-context" :depends-on ("util"))
