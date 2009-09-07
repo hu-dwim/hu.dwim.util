@@ -25,6 +25,7 @@
                              (:file "dynamic-context" :depends-on ("util"))
                              (:file "error-handling" :depends-on ("util"))
                              (:file "package")
+                             (:file "production" :depends-on ("package"))
                              (:file "string" :depends-on ("package"))
                              (:file "util" :depends-on ("configuration"))))
                (:module "integration"
