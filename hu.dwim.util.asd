@@ -15,17 +15,19 @@
            "Levente Mészáros <levente.meszaros@gmail.com>")
   :licence "BSD / Public domain"
   :description "Various utilities"
-  :depends-on (:hu.dwim.common-lisp
+  :depends-on (:cl-fad
+               :hu.dwim.common-lisp
                :hu.dwim.def
                :hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.syntax-sugar+swank
+               :iolib.syscalls
                :trivial-shell)
   :components ((:module "source"
                 :components ((:file "configuration" :depends-on ("package"))
                              (:file "dynamic-context" :depends-on ("util"))
                              (:file "error-handling" :depends-on ("util"))
                              (:file "package")
-                             (:file "production" :depends-on ("package"))
+                             (:file "production" :depends-on ("util"))
                              (:file "string" :depends-on ("package"))
                              (:file "util" :depends-on ("configuration"))))
                (:module "integration"
