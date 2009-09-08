@@ -9,11 +9,24 @@
 ;;;;;;
 ;;; Production support
 
+
+(def (function e) command-line-arguments ()
+  #+sbcl
+  ;; KLUDGE checking for "--end-toplevel-options" shouldn't be necessary; SBCL bug.
+  (subseq sb-ext:*posix-argv*
+          (1+ (or (position "--end-toplevel-options" sb-ext:*posix-argv*
+                            :test #'string=)
+                  0)))
+  #-sbcl
+  (not-yet-implemented))
+
 (def (function e) quit-production (status-code)
   #+nil
   (log.info "Quiting production image with status-code ~A" status-code)
   #+sbcl
-  (sb-ext:quit :recklessly-p #t :unix-status status-code))
+  (sb-ext:quit :recklessly-p #t :unix-status status-code)
+  #-sbcl
+  (not-yet-implemented))
 
 (def (function e) best-effort-log-error (&optional message &rest args)
   (when message
@@ -36,7 +49,7 @@
          (config-file-name (system-relative-pathname system-name pathname)))
     (if (cl-fad:file-exists-p config-file-name)
         (with-local-readtable
-          (asdf::maybe-funcall-setup-readtable-function system-name)
+          (hu.dwim.asdf::maybe-funcall-setup-readtable-function system-name)
           (load config-file-name)
           config-file-name)
         nil)))
@@ -92,9 +105,12 @@
                (quit-production 2)))
       (unwind-protect
            (progn
-             #+sbcl(sb-sys:enable-interrupt sb-unix:sigterm #'startup-signal-handler)
-             #+sbcl(sb-sys:enable-interrupt sb-unix:sigint #'startup-signal-handler)
-             #+nil(log.info "Temporary startup signal handlers are installed")
+             #+sbcl
+             (sb-sys:enable-interrupt sb-unix:sigterm #'startup-signal-handler)
+             #+sbcl
+             (sb-sys:enable-interrupt sb-unix:sigint #'startup-signal-handler)
+             #+nil
+             (log.info "Temporary startup signal handlers are installed")
              (when pathname
                #+nil(log.info "Writing pid file ~S" pathname)
                (when (cl-fad:file-exists-p pathname)
@@ -125,9 +141,14 @@
       (-body-)
     (save-core-and-die ()
       :report "Save image to /tmp/sbcl.core and die"
+      #+sbcl
       (mapcar
        (lambda (thread)
          (unless (eq thread sb-thread:*current-thread*)
            (sb-thread:terminate-thread thread)))
        (sb-thread:list-all-threads))
-      (sb-ext:save-lisp-and-die "/tmp/sbcl.core"))))
+      (save-image "/tmp/sbcl.core"))))
+
+(def (function e) save-image (file-name &rest args &key &allow-other-keys)
+  #+sbcl
+  (apply #'sb-ext:save-lisp-and-die file-name args))
