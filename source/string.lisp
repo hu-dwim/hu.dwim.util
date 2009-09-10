@@ -7,8 +7,17 @@
 (in-package :hu.dwim.util)
 
 ;;;;;;
+;;; Whitespaces
+
+(def (constant e :test #'equal) +whitespace-characters+ (list #\Space #\Tab #\NewLine))
+
+(def (function e) string-trim-whitespace (text)
+  (string-trim +whitespace-characters+ text))
+
+;;;;;;
 ;;; Concatenate
 
+;; TODO: rename this to string+
 (def (function eo) concatenate-string (&rest args)
   ;; don't inline, otherwise the compiler macro is kicked
   (apply #'concatenate 'string args))

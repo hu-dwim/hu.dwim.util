@@ -28,7 +28,7 @@
                              (:file "error-handling" :depends-on ("util"))
                              (:file "package")
                              (:file "production" :depends-on ("util"))
-                             (:file "string" :depends-on ("package"))
+                             (:file "string" :depends-on ("configuration"))
                              (:file "util" :depends-on ("configuration"))))
                (:module "integration"
                 :depends-on ("source")
