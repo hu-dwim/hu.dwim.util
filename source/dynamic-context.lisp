@@ -88,7 +88,7 @@
                                         'parent-context-of) ,context-instance)
                                 ,parent)))
               (unless ,context-instance
-                (error ,',(concatenate-string "Called with nil " (string-downcase name))))
+                (error ,',(string+ "Called with nil " (string-downcase name))))
               ,@forms)))
        (defun ,has-checker-name ()
          (boundp ',special-var-name))

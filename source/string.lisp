@@ -17,12 +17,11 @@
 ;;;;;;
 ;;; Concatenate
 
-;; TODO: rename this to string+
-(def (function eo) concatenate-string (&rest args)
+(def (function eo) string+ (&rest args)
   ;; don't inline, otherwise the compiler macro is kicked
   (apply #'concatenate 'string args))
 
-(def compiler-macro concatenate-string (&rest args)
+(def compiler-macro string+ (&rest args)
   `(concatenate 'string ,@args))
 
 ;;;;;;

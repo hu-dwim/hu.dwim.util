@@ -45,7 +45,7 @@
             (sb-impl::default-external-format))))
 
 (def (function e) load-and-eval-config-file (system-name)
-  (bind ((pathname (merge-pathnames (concatenate-string (string-downcase system-name) ".lisp") "config/"))
+  (bind ((pathname (merge-pathnames (string+ (string-downcase system-name) ".lisp") "config/"))
          (config-file-name (system-relative-pathname system-name pathname)))
     (if (cl-fad:file-exists-p config-file-name)
         (with-local-readtable
