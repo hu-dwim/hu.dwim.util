@@ -16,6 +16,7 @@
   :licence "BSD / Public domain"
   :description "Various utilities"
   :depends-on (:cl-fad
+               :command-line-arguments
                :hu.dwim.common-lisp
                :hu.dwim.def
                :hu.dwim.defclass-star+hu.dwim.def
