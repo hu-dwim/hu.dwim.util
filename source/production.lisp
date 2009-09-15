@@ -83,8 +83,9 @@
                                                               :coding-system "utf-8-unix")))
                                      #t)))
     (if started?
-        #+nil
-        (log.info "Swank server has been started")
+        (progn
+          #+nil
+          (log.info "Swank server has been started"))
         (progn
           #+nil
           (log.error "Swank server failed to start due to: ~A" error)
