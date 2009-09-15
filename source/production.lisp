@@ -9,15 +9,15 @@
 ;;;;;;
 ;;; Production support
 
-(def (special-variable e) *help-command-line-argument-specification*
+(def (special-variable e) *help-command-line-option*
   '("help"
     :type boolean
     :optional #t
     :documentation "Displays this help text."))
 
-(def (function e) process-help-command-line-argument (command-line-argument-specifications command-line-arguments)
+(def (function e) process-help-command-line-argument (command-line-options command-line-arguments)
   (when-bind help (getf command-line-arguments :help)
-    (command-line-arguments:show-option-help command-line-argument-specifications)
+    (command-line-arguments:show-option-help command-line-options)
     (quit-production 0)))
 
 (def (function e) quit-production (status-code)
