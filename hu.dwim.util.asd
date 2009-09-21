@@ -20,7 +20,7 @@
                :hu.dwim.common-lisp
                :hu.dwim.def
                :hu.dwim.defclass-star+hu.dwim.def
-               :hu.dwim.syntax-sugar+swank
+               :hu.dwim.syntax-sugar+swank ; TODO it should be :hu.dwim.syntax-sugar once the readtable supporting package definer is added
                :iolib.syscalls
                :trivial-shell)
   :components ((:module "source"

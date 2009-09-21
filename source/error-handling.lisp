@@ -33,7 +33,7 @@
                                                                                                        (format *debug-io* "WITH-LAYERED-ERROR-HANDLERS is bailing out due to a STORAGE-CONDITION...~%"))
                                                                                                      (constantly nil)))
                                                                         &allow-other-keys)
-  (remove-from-plistf args :ignore-condition-callback :out-of-storage-callback)
+  (remove-from-plistf args :log-to-debug-io :ignore-condition-callback :level-2-error-handler :giving-up-callback :out-of-storage-callback)
   (bind ((level-1-error nil))
     (labels ((ignore-error? (error)
                (apply ignore-condition-callback error args))
