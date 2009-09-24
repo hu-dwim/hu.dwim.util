@@ -19,6 +19,12 @@
       (ignore-errors
         (print formatted *error-output*)))))
 
+(def (function e) ensure-utf-8-external-format ()
+  #+sbcl
+  (unless (eq (sb-impl::default-external-format) :utf-8)
+    (cerror "Ignore" "The default external format is ~S, but UTF-8 is strongly advised! Check your $LANG env variable..."
+            (sb-impl::default-external-format))))
+
 (def (function e) load-and-eval-config-file (system-name)
   (bind ((pathname (merge-pathnames (string+ (string-downcase system-name) ".lisp") "config/"))
          (config-file-name (system-relative-pathname system-name pathname)))
