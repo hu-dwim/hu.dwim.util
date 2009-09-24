@@ -19,12 +19,6 @@
       (ignore-errors
         (print formatted *error-output*)))))
 
-(def (function e) ensure-external-format-is-utf-8 ()
-  #+sbcl
-  (unless (eq (sb-impl::default-external-format) :utf-8)
-    (cerror "Ignore" "The default external format is ~S, but UTF-8 is strongly advised! Check your $LANG env variable..."
-            (sb-impl::default-external-format))))
-
 (def (function e) load-and-eval-config-file (system-name)
   (bind ((pathname (merge-pathnames (string+ (string-downcase system-name) ".lisp") "config/"))
          (config-file-name (system-relative-pathname system-name pathname)))
@@ -124,13 +118,10 @@
     (save-core-and-die ()
       :report "Save image to /tmp/sbcl.core and die"
       #+sbcl
-      (mapcar
-       (lambda (thread)
-         (unless (eq thread sb-thread:*current-thread*)
-           (sb-thread:terminate-thread thread)))
-       (sb-thread:list-all-threads))
-      (save-image "/tmp/sbcl.core"))))
-
-(def (function e) save-image (file-name &rest args &key &allow-other-keys)
-  #+sbcl
-  (apply #'sb-ext:save-lisp-and-die file-name args))
+      (progn
+        (mapcar
+         (lambda (thread)
+           (unless (eq thread sb-thread:*current-thread*)
+             (sb-thread:terminate-thread thread)))
+         (sb-thread:list-all-threads))
+        (sb-ext:save-lisp-and-die "/tmp/sbcl.core")))))
