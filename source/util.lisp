@@ -13,6 +13,14 @@
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@body))
 
+(def (function e) quit (status-code)
+  #+nil
+  (log.info "Quiting production image with status-code ~A" status-code)
+  #+sbcl
+  (sb-ext:quit :recklessly-p #t :unix-status status-code)
+  #-sbcl
+  (not-yet-implemented))
+
 ;;;;;;
 ;;; Anaphoric extensions
 

@@ -9,25 +9,6 @@
 ;;;;;;
 ;;; Production support
 
-(def (special-variable e) *help-command-line-option*
-  '("help"
-    :type boolean
-    :optional #t
-    :documentation "Displays this help text."))
-
-(def (function e) process-help-command-line-argument (command-line-options command-line-arguments)
-  (when-bind help (getf command-line-arguments :help)
-    (command-line-arguments:show-option-help command-line-options)
-    (quit-production 0)))
-
-(def (function e) quit-production (status-code)
-  #+nil
-  (log.info "Quiting production image with status-code ~A" status-code)
-  #+sbcl
-  (sb-ext:quit :recklessly-p #t :unix-status status-code)
-  #-sbcl
-  (not-yet-implemented))
-
 (def (function e) best-effort-log-error (&optional message &rest args)
   (when message
     (bind ((formatted (or (ignore-errors
@@ -65,7 +46,7 @@
                  #+sbcl
                  (best-effort-log-error "~&~@<unhandled ~S~@[ in thread ~S~]: ~2I~_~A~:>~2%"
                                         (type-of condition) sb-thread:*current-thread* condition)
-                 (quit-production 1))))
+                 (quit 1))))
     #+sbcl
     (setf sb-ext:*invoke-debugger-hook* hook)
     (setf *debugger-hook* hook))
@@ -103,7 +84,7 @@
                (declare (ignore signal code scp))
                #+nil(log.info "SIGTERM/SIGINT was received while starting up, exiting abnormally")
                (cleanup-pid-file)
-               (quit-production 2)))
+               (quit 2)))
       (unwind-protect
            (progn
              #+sbcl
@@ -126,7 +107,7 @@
                (handler-bind ((serious-condition
                                (lambda (error)
                                  (best-effort-log-error "Failed to write pid file ~S because: ~A" pathname error)
-                                 (quit-production 1))))
+                                 (quit 1))))
                  (with-open-file (pid-stream pathname :direction :output
                                              :element-type 'character
                                              :if-exists :error)

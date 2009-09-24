@@ -24,7 +24,8 @@
                :iolib.syscalls
                :trivial-shell)
   :components ((:module "source"
-                :components ((:file "configuration" :depends-on ("package"))
+                :components ((:file "command-line" :depends-on ("configuration"))
+                             (:file "configuration" :depends-on ("package"))
                              (:file "dynamic-context" :depends-on ("util"))
                              (:file "error-handling" :depends-on ("util"))
                              (:file "package")
