@@ -42,7 +42,7 @@
   (bind ((hook (lambda (condition hook)
                  (declare (ignore hook))
                  (ignore-errors
-                   (log-error-with-backtrace project-logger condition :level '+fatal+))
+                   (log-error-with-backtrace project-logger condition :runtime-level '+fatal+))
                  #+sbcl
                  (best-effort-log-error "~&~@<unhandled ~S~@[ in thread ~S~]: ~2I~_~A~:>~2%"
                                         (type-of condition) sb-thread:*current-thread* condition)
