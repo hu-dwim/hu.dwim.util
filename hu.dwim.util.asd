@@ -17,7 +17,7 @@
   :description "Various utilities"
   :depends-on (:cl-fad
                :command-line-arguments
-               :hu.dwim.common-lisp
+               :hu.dwim.common
                :hu.dwim.def
                :hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.syntax-sugar+swank ; TODO it should be :hu.dwim.syntax-sugar once the readtable supporting package definer is added
