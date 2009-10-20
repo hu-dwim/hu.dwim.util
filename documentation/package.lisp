@@ -7,7 +7,8 @@
 (in-package :common-lisp-user)
 
 (defpackage :hu.dwim.util.documentation
-  (:use :hu.dwim.def
+  (:use :hu.dwim.asdf
+        :hu.dwim.def
         :hu.dwim.defclass-star
         :hu.dwim.syntax-sugar
         :hu.dwim.util

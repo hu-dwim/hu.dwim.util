@@ -16,6 +16,7 @@
   :licence "BSD / Public domain"
   :description "Documentation for hu.dwim.util"
   :depends-on (:hu.dwim.util.test
-               :hu.dwim.stefil)
+               :hu.dwim.wui)
   :components ((:module "documentation"
-                :components ((:file "package")))))
+                :components ((:file "package")
+                             (:file "util" :depends-on ("package"))))))
