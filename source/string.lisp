@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Whitespaces
 
-(def (constant e :test #'equal) +whitespace-characters+ (list #\Space #\Tab #\NewLine))
+(def (constant e) +whitespace-characters+ (list #\Space #\Tab #\NewLine))
 
 (def (function e) string-trim-whitespace (text)
   (string-trim +whitespace-characters+ text))
