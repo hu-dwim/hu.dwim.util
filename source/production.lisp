@@ -15,8 +15,6 @@
                             (apply #'format nil message args))
                           (format nil "Error while formatting error message.~%  Format control: ~A~%  Argument types: ~A" message (mapcar #'type-of args)))))
       (ignore-errors
-        #+nil(log.error formatted))
-      (ignore-errors
         (print formatted *error-output*)))))
 
 (def (function e) ensure-utf-8-external-format ()
@@ -38,6 +36,7 @@
 (def (function e) disable-debugger ()
   #+sbcl(sb-ext:disable-debugger)
   ;; TODO delme?
+  ;; no! what about errors that happen in non-guarded code? silently ignored when the vm exits?
   #+nil
   (bind ((hook (lambda (condition hook)
                  (declare (ignore hook))
@@ -50,11 +49,10 @@
     #+sbcl
     (setf sb-ext:*invoke-debugger-hook* hook)
     (setf *debugger-hook* hook))
-  #+nil(log.info "Disabled debugger"))
+  (format *debug-io* "Disabled debugger~%"))
 
 (def (function e) start-swank-server (port)
-  #+nil
-  (log.info "Starting Swank server on port ~A..." port)
+  (format *debug-io* "Starting Swank server on port ~A...~%" port)
   (bind (((:values started? error) (ignore-errors
                                      (with-simple-restart (continue "Ok, go on without a Swank server")
                                        (let ((swank::*loopback-interface* "127.0.0.1"))
@@ -64,13 +62,8 @@
                                                               :coding-system "utf-8-unix")))
                                      #t)))
     (if started?
-        (progn
-          #+nil
-          (log.info "Swank server has been started"))
-        (progn
-          #+nil
-          (log.error "Swank server failed to start due to: ~A" error)
-          (warn "Swank server failed to start due to: ~A" error)))))
+        (format *debug-io* "Swank server has been started~%")
+        (warn "Swank server failed to start due to: ~A" error))))
 
 (def (with-macro e) with-pid-file (pathname)
   (bind ((pid-file-has-been-created? #f))
@@ -79,10 +72,10 @@
                  (unless (ignore-errors
                            (delete-file pathname)
                            #t)
-                   #+nil(log.warn "Failed to remove pid file ~S" pathname))))
+                   (format *debug-io* "Failed to remove pid file ~S~%" pathname))))
              (startup-signal-handler (signal code scp)
                (declare (ignore signal code scp))
-               #+nil(log.info "SIGTERM/SIGINT was received while starting up, exiting abnormally")
+               (format *debug-io* "SIGTERM/SIGINT was received while starting up, exiting abnormally~%")
                (cleanup-pid-file)
                (quit 2)))
       (unwind-protect
@@ -91,30 +84,28 @@
              (sb-sys:enable-interrupt sb-unix:sigterm #'startup-signal-handler)
              #+sbcl
              (sb-sys:enable-interrupt sb-unix:sigint #'startup-signal-handler)
-             #+nil
-             (log.info "Temporary startup signal handlers are installed")
+             (format *debug-io* "Temporary startup signal handlers are installed~%")
              (when pathname
-               #+nil(log.info "Writing pid file ~S" pathname)
+               (format *debug-io* "Writing pid file ~S~%" pathname)
                (when (cl-fad:file-exists-p pathname)
                  (bind ((pid (parse-integer (read-file-into-string pathname))))
                    (if (ignore-errors
                          (isys:%sys-kill pid 0)
                          #t)
-                       (error "Pid file ~S already exists and points to a running process ~S" pathname pid)
+                       (error "PID file ~S already exists and points to a running process ~S" pathname pid)
                        (progn
-                         #+nil(log.warn "Deleting stale pid file ~S pointing to non-existent process ~S" pathname pid)
+                         (format *debug-io* "Deleting stale PID file ~S pointing to non-existent PID ~S~%" pathname pid)
                          (delete-file pathname)))))
                (handler-bind ((serious-condition
                                (lambda (error)
-                                 (best-effort-log-error "Failed to write pid file ~S because: ~A" pathname error)
+                                 (best-effort-log-error "Failed to write PID file ~S because: ~A" pathname error)
                                  (quit 1))))
                  (with-open-file (pid-stream pathname :direction :output
                                              :element-type 'character
                                              :if-exists :error)
-                   (princ (isys:%sys-getpid) pid-stream)
-                   (terpri pid-stream)))
+                   (princ (isys:%sys-getpid) pid-stream)))
                (setf pid-file-has-been-created? #t)
-               #+nil(log.info "PID file is ~S, PID is ~A" pathname (isys:%sys-getpid)))
+               (format *debug-io* "PID file is ~S, PID is ~A" pathname (isys:%sys-getpid)))
              (-body-))
         (cleanup-pid-file)))))
 
