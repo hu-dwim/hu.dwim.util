@@ -74,3 +74,18 @@
 
 (def (function e) parse-command-line-arguments (options)
   (command-line-arguments:process-command-line-options options (non-vm-command-line-arguments)))
+
+(def (function e) copy-command-line-options (options &rest default-values &key &allow-other-keys)
+  (mapcar (lambda (option)
+            (apply #'copy-command-line-option option default-values))
+          options))
+
+(def (function e) copy-command-line-option (option &rest default-values &key &allow-other-keys)
+  (bind ((option (copy-seq option))
+         (properties (cdr option))
+         (property-name (command-line-arguments::actual-action-from-spec (first (ensure-list (car option)))))
+         (default-value (getf default-values property-name)))
+    (when (and (not (getf properties :initial-value))
+               (getf default-values property-name))
+      (setf (getf properties :initial-value) default-value))
+    (cons (car option) properties)))
