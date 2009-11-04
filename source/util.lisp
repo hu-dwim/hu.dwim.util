@@ -78,7 +78,8 @@
 
 (def (macro e) with-thread-name (name &body body)
   (declare (ignorable name))
-  #*((:sbcl
+  #*(#+sbcl
+     (:sbcl
       (with-unique-names (thread previous-name)
         `(let* ((,thread sb-thread:*current-thread*)
                 (,previous-name (sb-thread:thread-name ,thread)))

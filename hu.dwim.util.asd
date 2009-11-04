@@ -15,24 +15,15 @@
            "Levente Mészáros <levente.meszaros@gmail.com>")
   :licence "BSD / Public domain"
   :description "Various utilities"
-  :depends-on (:cl-fad
+  :depends-on (:hu.dwim.util-base
                :command-line-arguments
-               :hu.dwim.common
-               :hu.dwim.def
-               :hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.syntax-sugar+swank ; TODO it should be :hu.dwim.syntax-sugar once the readtable supporting package definer is added
-               :iolib.syscalls
-               :trivial-shell)
+               :iolib.syscalls)
   :components ((:module "source"
-                :components ((:file "command-line" :depends-on ("configuration"))
-                             (:file "configuration" :depends-on ("package"))
-                             (:file "dynamic-context" :depends-on ("util"))
-                             (:file "error-handling" :depends-on ("util"))
-                             (:file "integer-to-string" :depends-on ("configuration"))
-                             (:file "package")
-                             (:file "production" :depends-on ("util"))
-                             (:file "string" :depends-on ("configuration"))
-                             (:file "util" :depends-on ("configuration"))))
+                :components ((:file "command-line")
+                             (:file "dynamic-context")
+                             (:file "error-handling")
+                             (:file "production")))
                (:module "integration"
                 :depends-on ("source")
                 :components (#+sbcl (:file "sbcl")))))
