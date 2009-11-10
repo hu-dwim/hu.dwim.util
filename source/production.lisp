@@ -65,19 +65,6 @@
         (format *debug-io* "Swank server has been started~%")
         (warn "Swank server failed to start due to: ~A" error))))
 
-(def (with-macro e) with-standard-toplevel-restarts ()
-  (restart-case
-      (-body-)
-    (abort nil
-      :report (lambda (stream)
-                (format stream "Give up starting the image and quit the VM process with exit code 2"))
-      (quit 2))
-    #+sbcl
-    (save-lisp-and-die nil
-      :report (lambda (stream)
-                (format stream "Dump heap to /tmp/lisp.core and quit the VM process"))
-      (sb-ext:save-lisp-and-die "/tmp/sbcl.core"))))
-
 (def (with-macro* e) with-pid-file-logic (pathname &key optional)
   (check-type pathname (or null pathname string))
   (assert (or optional pathname))
@@ -124,16 +111,24 @@
              (-body-))
         (cleanup-pid-file)))))
 
+(def (with-macro e) with-standard-toplevel-restarts ()
+  (restart-case
+      (with-save-core-and-die-restart
+        (-body-))
+    (abort nil
+      :report (lambda (stream)
+                (format stream "Give up starting the image and quit the VM process with exit code 2"))
+      (quit 2))))
+
 (def (with-macro e) with-save-core-and-die-restart ()
   (restart-case
       (-body-)
+    #+sbcl
     (save-core-and-die ()
       :report "Save image to /tmp/sbcl.core and die"
-      #+sbcl
-      (progn
-        (mapcar
-         (lambda (thread)
-           (unless (eq thread sb-thread:*current-thread*)
-             (sb-thread:terminate-thread thread)))
-         (sb-thread:list-all-threads))
-        (sb-ext:save-lisp-and-die "/tmp/sbcl.core")))))
+      (mapcar
+       (lambda (thread)
+         (unless (eq thread sb-thread:*current-thread*)
+           (sb-thread:terminate-thread thread)))
+       (sb-thread:list-all-threads))
+      (sb-ext:save-lisp-and-die "/tmp/sbcl.core"))))
