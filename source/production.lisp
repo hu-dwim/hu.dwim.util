@@ -65,6 +65,19 @@
         (format *debug-io* "Swank server has been started~%")
         (warn "Swank server failed to start due to: ~A" error))))
 
+(def (with-macro e) with-standard-toplevel-restarts ()
+  (restart-case
+      (-body-)
+    (abort nil
+      :report (lambda (stream)
+                (format stream "Give up starting the image and quit the VM process with exit code 2"))
+      (quit 2))
+    #+sbcl
+    (save-lisp-and-die nil
+      :report (lambda (stream)
+                (format stream "Dump heap to /tmp/lisp.core and quit the VM process"))
+      (sb-ext:save-lisp-and-die "/tmp/sbcl.core"))))
+
 (def (with-macro e) with-pid-file (pathname)
   (bind ((pid-file-has-been-created? #f))
     (labels ((cleanup-pid-file ()
