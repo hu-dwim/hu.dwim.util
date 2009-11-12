@@ -111,15 +111,6 @@
              (-body-))
         (cleanup-pid-file)))))
 
-(def (with-macro e) with-standard-toplevel-restarts ()
-  (restart-case
-      (with-save-core-and-die-restart
-        (-body-))
-    (abort nil
-      :report (lambda (stream)
-                (format stream "Give up starting the image and quit the VM process with exit code 2"))
-      (quit 2))))
-
 (def (with-macro e) with-save-core-and-die-restart ()
   (restart-case
       (-body-)
@@ -132,3 +123,12 @@
            (sb-thread:terminate-thread thread)))
        (sb-thread:list-all-threads))
       (sb-ext:save-lisp-and-die "/tmp/sbcl.core"))))
+
+(def (with-macro e) with-standard-toplevel-restarts ()
+  (restart-case
+      (with-save-core-and-die-restart
+        (-body-))
+    (abort nil
+      :report (lambda (stream)
+                (format stream "Give up starting the image and quit the VM process with exit code 2"))
+      (quit 2))))
