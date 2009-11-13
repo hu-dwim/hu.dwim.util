@@ -13,6 +13,8 @@
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@body))
 
+(def (constant e) +no-error-status-code+ 0)
+
 (def (function e) quit (status-code)
   #+nil
   (log.info "Quiting production image with status-code ~A" status-code)
