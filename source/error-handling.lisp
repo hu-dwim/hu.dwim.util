@@ -95,7 +95,8 @@
 ;;;;;;
 ;;; Error log decorators
 
-(def special-variable *error-log-decorators* ())
+(def (special-variable :documentation "List of decorators that will be invoked when an error backtrace is logged. A decorator is a function thunk that will be funcall'd and can print to *STANDARD-OUTPUT* (caret will not be on a new line when called).")
+    *error-log-decorators* ())
 
 (def (definer e :available-flags "eiod") error-log-decorator (name &body body)
   `(def function ,name ()
@@ -111,7 +112,7 @@
             (*print-right-margin* 150))
        ,@(iter (for variable :in variables)
                (collect `(format t ,(bind ((*package* (find-package "COMMON-LISP")))
-                                      (format nil "~~%~S: ~~A" variable))
+                                      (format nil "~~%~S ~~A" variable))
                                  (if (boundp ',variable)
                                      ,variable
                                      'unbound)))))))
