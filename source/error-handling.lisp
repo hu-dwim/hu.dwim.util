@@ -29,8 +29,8 @@
                                                                                                 (constantly nil)))
                                                                         (out-of-storage-callback (if log-to-debug-io
                                                                                                      (lambda (error &key &allow-other-keys)
-                                                                                                       (declare (ignore error))
-                                                                                                       (format *debug-io* "WITH-LAYERED-ERROR-HANDLERS is bailing out due to a STORAGE-CONDITION...~%"))
+                                                                                                       ;; TODO if/when sbcl becomes more failure tolerant with stack overflows, we could try to log this using the logger infrastructure. until then, print something to *debug-io* and bail out...
+                                                                                                       (format *debug-io* "WITH-LAYERED-ERROR-HANDLERS is bailing out due to a STORAGE-CONDITION of type ~S~%" (type-of error)))
                                                                                                      (constantly nil)))
                                                                         &allow-other-keys)
   (remove-from-plistf args :log-to-debug-io :ignore-condition-callback :level-2-error-handler :giving-up-callback :out-of-storage-callback)
