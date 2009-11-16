@@ -134,7 +134,7 @@
                              (when (and parse-decimals-p (digit-char-p char))
                                (parse-integer str :start start :end end :junk-allowed #t)))
                             ((:values roman-number roman-end)
-                             (when (and parse-roman-numerals-p (roman-numeral-digit-p char))
+                             (when (and parse-roman-numerals-p (roman-numeral-digit-character? char))
                                (parse-roman-numeral str :start start :end end))))
                        (cond
                          (decimal-number

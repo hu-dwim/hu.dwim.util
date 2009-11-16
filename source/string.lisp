@@ -27,7 +27,8 @@
 ;;;;;;
 ;;; Roman numeral
 
-(def (function e) parse-roman-numeral-digit (char)
+(def (function e) roman-numeral-digit-character? (char)
+  (check-type char character)
   (case char
     (#\I 1)
     (#\V 5)
@@ -38,13 +39,10 @@
     (#\M 1000)
     (t nil)))
 
-(def (function e) roman-numeral-digit-p (char)
-  (member char '(#\I #\V #\X #\L #\C #\D #\M)))
-
 (def (function e) parse-roman-numeral (str &key (start 0) end)
   (iter (for index from start below (or end (length str)))
         (for ch = (elt str index))
-        (for digit = (parse-roman-numeral-digit ch))
+        (for digit = (roman-numeral-digit-character? ch))
         (while digit)
         (for prev-digit previous digit)
         (for result first 0 then (if (>= prev-digit digit)
@@ -76,4 +74,4 @@
   (string-with-numeric< str1 str2 #'digit-char-p #'parse-integer :start1 start1 :start2 start2))
 
 (def (function e) string-with-roman-numerals< (str1 str2 &key (start1 0) (start2 0))
-  (string-with-numeric< str1 str2 #'roman-numeral-digit-p #'parse-roman-numeral :start1 start1 :start2 start2))
+  (string-with-numeric< str1 str2 #'roman-numeral-digit-character? #'parse-roman-numeral :start1 start1 :start2 start2))
