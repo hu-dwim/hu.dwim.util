@@ -17,5 +17,5 @@
   :licence "BSD / Public domain"
   :depends-on (:hu.dwim.util
                :cl-l10n)
-  :components ((:module "integration"
-                :components ((:file "cl-l10n")))))
+  :components ((:module "source"
+                :components ((:file "l10n")))))
