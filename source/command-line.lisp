@@ -10,7 +10,7 @@
 ;;; Help command line option
 
 (def (constant e) +help-command-line-option+
-  '((#\h "help")
+  '(("help" #\h)
     :type boolean
     :optional #t
     :documentation "Print usage help and exit"))
@@ -29,7 +29,7 @@
 ;;; Version command line option
 
 (def (constant e) +version-command-line-option+
-  '((#\v "version")
+  '(("version" #\v)
     :type boolean
     :optional #t
     :documentation "Print version information and exit"))
@@ -44,7 +44,7 @@
 ;;; Quiet command line option
 
 (def (constant e) +quiet-command-line-option+
-  '((#\q "quiet")
+  '(("quiet" #\q)
     :type boolean
     :optional #t
     :documentation "Do not write to standard output"))
