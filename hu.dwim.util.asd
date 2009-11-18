@@ -10,20 +10,13 @@
 
 (defsystem :hu.dwim.util
   :class hu.dwim.system
-  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-           "Tamás Borbély <tomi.borbely@gmail.com>"
-           "Levente Mészáros <levente.meszaros@gmail.com>")
-  :licence "BSD / Public domain"
-  :description "Various utilities"
-  :depends-on (:hu.dwim.util-base
-               :command-line-arguments
-               :hu.dwim.syntax-sugar+swank ; TODO it should be :hu.dwim.syntax-sugar once the readtable supporting package definer is added
-               :iolib.syscalls)
+  :setup-readtable-function-name "hu.dwim.util::setup-readtable"
+  :description "Various utilities used by the dwim.hu team. This is the most basic system that only introduce a small number of external dependencies."
+  :depends-on (:hu.dwim.def+hu.dwim.common
+               :hu.dwim.syntax-sugar)
   :components ((:module "source"
-                :components ((:file "command-line")
-                             (:file "dynamic-context")
-                             (:file "error-handling")
-                             (:file "production")))
-               (:module "integration"
-                :depends-on ("source")
-                :components (#+sbcl (:file "sbcl")))))
+                :components ((:file "integer-to-string" :depends-on ("package"))
+                             (:file "package")
+                             (:file "string" :depends-on ("package"))
+                             (:file "util" :depends-on ("package"))
+                             (:file "dynamic-context" :depends-on ("util"))))))

@@ -4,11 +4,14 @@
 ;;;
 ;;; See LICENCE for details.
 
-(in-package :common-lisp-user)
+(in-package :hu.dwim.def)
 
-(defpackage :hu.dwim.util
+(def package :hu.dwim.util
   (:use :hu.dwim.asdf
         :hu.dwim.common
-        :hu.dwim.defclass-star
         :hu.dwim.def
-        :hu.dwim.syntax-sugar))
+        :hu.dwim.syntax-sugar)
+  (:readtable-setup
+   (hu.dwim.syntax-sugar:enable-sharp-boolean-syntax)
+   (hu.dwim.syntax-sugar:enable-readtime-wrapper-syntax)
+   (hu.dwim.syntax-sugar:enable-feature-cond-syntax)))

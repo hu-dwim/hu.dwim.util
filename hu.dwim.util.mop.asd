@@ -8,7 +8,7 @@
 
 (in-package :hu.dwim.asdf)
 
-(defsystem :hu.dwim.util+closer-mop
+(defsystem :hu.dwim.util.mop
   :class hu.dwim.system
   :depends-on (:hu.dwim.util
                :closer-mop)

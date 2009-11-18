@@ -28,8 +28,9 @@
          (config-file-name (system-relative-pathname system-name pathname)))
     (if (cl-fad:file-exists-p config-file-name)
         (with-local-readtable
-          (hu.dwim.asdf::maybe-funcall-setup-readtable-function system-name)
-          (load config-file-name)
+          (bind ((*package* (find-package :hu.dwim.common)))
+            ;; load using the special in-package symbol that sets up the readtable based on what the package says
+            (load config-file-name))
           config-file-name)
         nil)))
 
