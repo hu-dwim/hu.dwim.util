@@ -94,13 +94,13 @@
 ;;;;;;
 ;;; Development marks
 
-(def (function e) not-yet-implemented (&optional (datum "Not yet implemented." datum-p) &rest args)
-  (when datum-p
+(def (function e) not-yet-implemented (&optional (datum "Not yet implemented." datum?) &rest args)
+  (when datum?
     (setf datum (concatenate 'string "Not yet implemented: " datum)))
   (apply #'cerror "Ignore and continue" datum args))
 
-(def (function e) operation-not-supported (&optional (datum "Operation not supported." datum-p) &rest args)
-  (when datum-p
+(def (function e) operation-not-supported (&optional (datum "Operation not supported." datum?) &rest args)
+  (when datum?
     (setf datum (concatenate 'string "Operation not supported: " datum)))
   (apply #'error datum args))
 
