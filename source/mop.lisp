@@ -16,7 +16,7 @@
             :test 'eq)
       (handle-otherwise (if otherwise?
                             otherwise
-                            (list :error "Cannot find slot ~A in class ~A" slot-name class-or-name)))))
+                            (list :error "Cannot find slot ~S in class ~A" slot-name class-or-name)))))
 
 (def (function ioe) find-direct-slot (class-or-name slot-name &key (otherwise nil otherwise?))
   (or (find slot-name
@@ -28,4 +28,4 @@
             :test 'eq)
       (handle-otherwise (if otherwise?
                             otherwise
-                            (list :error "Cannot find direct slot ~A in class ~A" slot-name class-or-name)))))
+                            (list :error "Cannot find direct slot ~S in class ~A" slot-name class-or-name)))))
