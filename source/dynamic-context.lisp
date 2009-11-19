@@ -10,9 +10,7 @@
                                        export-symbols (class-name name) chain-parents
                                        (create-struct nil) (create-class (not create-struct))
                                        struct-options (defclass-macro-name 'defclass))
-  "The purpose of this macro is to provide an easy way to access a group of related special variables. To do so, it generates
-   with-NAME/in-NAME/current-NAME/has-NAME macros to access either a CLOS instance or a defstruct in a special variable.
-   Optionally it can chain the \"parent\" bindings (use :CHAIN-PARENTS T and access with PARENT-CONTEXT-OF)."
+  "The purpose of this macro is to provide an easy way to access a group of related special variables. To do so, it generates with-NAME/in-NAME/current-NAME/has-NAME macros to access either a CLOS instance or a defstruct in a special variable. Optionally it can chain the \"parent\" bindings (use :CHAIN-PARENTS T and access with PARENT-CONTEXT-OF)."
   (assert (and (or create-class
                    create-struct
                    (not (or direct-slots direct-superclasses chain-parents)))
@@ -21,20 +19,19 @@
           () "Invalid combination of DIRECT-SLOTS, DIRECT-SUPERCLASSES, CHAIN-PARENTS and CREATE-CLASS/CREATE-STRUCT.")
   (assert (or (not struct-options) create-struct) () "STRUCT-OPTIONS while no CREATE-STRUCT?")
   (assert (not (and create-class create-struct)) () "Only one of CREATE-CLASS and CREATE-STRUCT is allowed.")
-  (bind ((name-package (symbol-package name))
-         (special-var-name (format-symbol name-package "*~A*" name))
-         (extractor-name (format-symbol name-package "CURRENT-~A" name))
-         (has-checker-name (format-symbol name-package "HAS-~A" name))
-         (in-macro-name (format-symbol name-package "IN-~A" name))
-         (with-new-macro-name (format-symbol name-package "WITH-NEW-~A" name))
-         (with-macro-name (format-symbol name-package "WITH-~A" name))
-         (ensure-macro-name (format-symbol name-package "ENSURE-~A" name))
+  (bind ((special-var-name (symbolicate "*" name "*"))
+         (extractor-name (symbolicate '#:current- name))
+         (has-checker-name (symbolicate '#:has- name))
+         (in-macro-name (symbolicate '#:in- name))
+         (with-new-macro-name (symbolicate '#:with-new- name))
+         (with-macro-name (symbolicate '#:with- name))
+         (ensure-macro-name (symbolicate '#:ensure- name))
          (struct-constructor-name (when create-struct
                                     (or (second (assoc :constructor struct-options))
-                                        (format-symbol name-package "MAKE-~A" name))))
+                                        (symbolicate '#:make- name))))
          (struct-conc-name (when create-struct
                              (or (second (assoc :conc-name struct-options))
-                                 (format-symbol name-package "~A-" class-name)))))
+                                 (symbolicate class-name "-")))))
     `(progn
        (defvar ,special-var-name)
        (declaim (inline ,has-checker-name ,extractor-name (setf ,extractor-name)))
@@ -84,7 +81,7 @@
               (declare (special ,',special-var-name)) ; KLUDGE with-call/cc in needs it currently
               ,@,(when chain-parents
                        ``((setf (,',(if create-struct
-                                        (format-symbol name-package "~A-PARENT-CONTEXT" struct-conc-name)
+                                        (symbolicate struct-conc-name '#:parent-context)
                                         'parent-context-of) ,context-instance)
                                 ,parent)))
               (unless ,context-instance
