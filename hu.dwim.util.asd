@@ -10,7 +10,6 @@
 
 (defsystem :hu.dwim.util
   :class hu.dwim.system
-  :setup-readtable-function-name "hu.dwim.util::setup-readtable"
   :description "Various utilities used by the dwim.hu team. This is the most basic system that only introduce a small number of external dependencies."
   :depends-on (:hu.dwim.def+hu.dwim.common
                :hu.dwim.syntax-sugar)
