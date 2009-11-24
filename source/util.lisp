@@ -43,6 +43,10 @@
                (t :binary)))
        :binary))))
 
+(def (macro e) with-keyword-package (&body body)
+ `(bind ((*package* #.(find-package "KEYWORD")))
+    ,@body))
+
 ;;;;;;
 ;;; Anaphoric extensions
 
