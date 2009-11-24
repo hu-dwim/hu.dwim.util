@@ -47,6 +47,11 @@
  `(bind ((*package* #.(find-package "KEYWORD")))
     ,@body))
 
+(def (function e) fully-qualified-symbol-name (symbol)
+  (with-keyword-package
+    (with-output-to-string (*standard-output*)
+      (write symbol))))
+
 ;;;;;;
 ;;; Anaphoric extensions
 
