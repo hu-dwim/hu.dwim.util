@@ -156,6 +156,18 @@
   "Collect elements from SEQUENCE with the given TYPE."
   (collect-if (lambda (element) (typep element type)) sequence))
 
+(def (function e) quoted-form? (thing)
+  (and (consp thing)
+       (eq (car thing) 'quote)
+       (progn
+         (assert (length= 2 thing) () "Illegal QUOTE form ~S" thing)
+         t)))
+
+(def (function e) quoted-symbol? (thing)
+  (and (quoted-form? thing)
+       (not (null (second thing)))
+       (symbolp (second thing))))
+
 ;;;;;;
 ;;; Place related
 
