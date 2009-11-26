@@ -18,4 +18,5 @@
                              (:file "package")
                              (:file "string" :depends-on ("package"))
                              (:file "util" :depends-on ("package"))
+                             (:file "type" :depends-on ("package"))
                              (:file "dynamic-context" :depends-on ("util"))))))
