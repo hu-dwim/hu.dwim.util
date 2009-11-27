@@ -14,9 +14,10 @@
   :depends-on (:hu.dwim.def+hu.dwim.common
                :hu.dwim.syntax-sugar)
   :components ((:module "source"
-                :components ((:file "integer-to-string" :depends-on ("package"))
+                :components ((:file "dynamic-context" :depends-on ("util"))
+                             (:file "integer-to-string" :depends-on ("package"))
                              (:file "package")
                              (:file "string" :depends-on ("package"))
-                             (:file "util" :depends-on ("package"))
+                             (:file "threading" :depends-on ("util"))
                              (:file "type" :depends-on ("package"))
-                             (:file "dynamic-context" :depends-on ("util"))))))
+                             (:file "util" :depends-on ("package"))))))
