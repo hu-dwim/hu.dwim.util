@@ -12,8 +12,9 @@
   :class hu.dwim.system
   :description "Various utilities used by the dwim.hu team. Contains everything and therefore it's heavy on external dependencies."
   :depends-on (:hu.dwim.util
-               :hu.dwim.util.i18n
-               :hu.dwim.util.mop
                :hu.dwim.util.error-handling
                :hu.dwim.util.error-handling+swank
-               :hu.dwim.util.production))
+               :hu.dwim.util.i18n
+               :hu.dwim.util.mop
+               :hu.dwim.util.production
+               :hu.dwim.util.threads))

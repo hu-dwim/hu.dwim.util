@@ -6,8 +6,8 @@
 
 (in-package :hu.dwim.util)
 
-;; TODO put it somewhere "A place holding a machine word sized integer in a way that paralell CPU's don't step on each other's toes when incrementing/decrementing it. These operation don't expand to bignums, they just overflow/underflow when the high/low bound of the word sized integer is reached."
 (def (structure e) (atomic-counter (:conc-name ac/))
+  "A place holding a machine word sized integer in a way that parallel CPU's don't step on each other's toes when incrementing/decrementing it. These operation don't expand to bignums, they just overflow/underflow when the high/low bound of the word sized integer is reached."
   (counter 0 :type #*((:sbcl (unsigned-byte #.sb-vm:n-word-bits))
                       (t #.(warn "~S does not have a thread safe implementation on your platform!" 'atomic-counter)
                          fixnum))))

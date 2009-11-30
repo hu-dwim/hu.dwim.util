@@ -18,6 +18,6 @@
                              (:file "integer-to-string" :depends-on ("package"))
                              (:file "package")
                              (:file "string" :depends-on ("package"))
-                             (:file "threading" :depends-on ("util"))
+                             (:file "threads-early" :depends-on ("package"))
                              (:file "type" :depends-on ("package"))
                              (:file "util" :depends-on ("package"))))))
