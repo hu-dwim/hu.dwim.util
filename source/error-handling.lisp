@@ -166,13 +166,14 @@
   "Message may also be a list, in which case FORMAT is applied on it."
   (with-backtrace-bindings
     (block building
-      (handler-bind ((serious-condition
-                      (lambda (nested-error)
-                        (handler-bind ((serious-condition
-                                        (lambda (nested-error2)
-                                          (declare (ignore nested-error2))
-                                          (return-from building "Failed to build backtrace due to multiple nested errors. Giving up..."))))
-                          (return-from building (format nil "Failed to build backtrace due to: ~A. The orignal error is: ~A" nested-error error))))))
+      (with-layered-error-handlers ((lambda (nested-error)
+                                      (return-from building (format nil "Failed to build backtrace due to: ~A. The orignal error was: ~A" nested-error error)))
+                                    (lambda (reason args)
+                                      (declare (ignore reason args))
+                                      (error "This should be impossible to reach in ~S" 'build-backtrace-string))
+                                    :level-2-error-handler (lambda (nested-error2)
+                                                             (declare (ignore nested-error2))
+                                                             (return-from building "Failed to build backtrace due to multiple nested errors. Giving up...")))
         (with-output-to-string (*standard-output*)
           (when timestamp
             (format t "~%*** At: ~A" timestamp))
