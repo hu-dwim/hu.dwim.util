@@ -90,14 +90,29 @@
                    (error "This code path must not be reached in the level 3 error handler of WITH-LAYERED-ERROR-HANDLERS")))))
       (handler-bind
           ((serious-condition #'handle-level-1-error))
-        (-body-)))))
+        (flet ((with-layered-error-handlers/debugger-hook (condition hook)
+                 ;; this is only here because (break) is going through the debugger hooks, so it needs special care...
+                 (declare (ignore hook))
+                 (when log-to-debug-io
+                   (format *debug-io* "~&WITH-LAYERED-ERROR-HANDLERS/DEBUGGER-HOOK is invoked, most probably because of CL:BREAK (if not, then that's a big WTF?!)~%"))
+                 (maybe-invoke-debugger condition)))
+          (with-debugger-hook-for-break #'with-layered-error-handlers/debugger-hook
+            (-body-)))))))
+
+(def with-macro with-debugger-hook-for-break (hook)
+  "CL:BREAK is specified to ignore CL:*DEBUGGER-HOOK*, so we need a platform dependent way to hook the debugger for it."
+  #*((:sbcl (bind ((sb-ext:*invoke-debugger-hook* hook)
+                   (*debugger-hook* nil))
+              (-body-)))
+     (t #.(warn "WITH-DEBUGGER-HOOK-FOR-BREAK is not implemented for your platform. This may interfere with the behavior of CL:BREAK while the debugger is disabled...")
+        (-body-))))
 
 (def (function e) maybe-invoke-debugger (condition &key context)
   (when (debug-on-error? context condition)
     (when (fboundp 'invoke-slime-debugger)
       (restart-case
           (funcall 'invoke-slime-debugger condition)
-        (continue ()
+        (continue-error-handling ()
           :report "Continue processing the error as if the debugger was not available"))))
   (values))
 
