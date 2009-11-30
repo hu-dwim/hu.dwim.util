@@ -26,29 +26,6 @@
           config-file-name)
         nil)))
 
-(def function disabled-debugger-hook (condition &optional logger)
-  (bind ((message (or (ignore-errors
-                        (build-backtrace-string condition :message "Unhandled error while debugger is disabled, quitting..." :timestamp (get-universal-time)))
-                      "Err, complete meltdown in DISABLED-DEBUGGER-HOOK. Sorry, no more clue is available...")))
-    (when message
-      (ignore-errors
-        (write-string message *error-output*)
-        (terpri *error-output*))
-      (when logger
-        (hu.dwim.logger:handle-log-message logger message hu.dwim.logger:+fatal+))))
-  (quit 3))
-
-(def (function e) disable-debugger (&optional logger)
-  (declare (ignorable logger))
-  #*((:sbcl (flet ((call-disabled-debugger-hook (condition hook)
-                     (declare (ignore hook))
-                     (disabled-debugger-hook condition logger)))
-              (sb-ext:disable-debugger) ; so that we unconditionally disable LDB
-              (setf sb-ext:*invoke-debugger-hook* #'call-disabled-debugger-hook)
-              (setf *debugger-hook* #'call-disabled-debugger-hook)))
-     (t #.(warn "~S is not fully implemented for your implementation which may lead to undesired consequences" 'disable-debugger)))
-  (format *debug-io* "Disabled debugger~%"))
-
 (def (function e) start-swank-server (port)
   (format *debug-io* "Starting Swank server on port ~A...~%" port)
   (bind (((:values started? error) (ignore-errors
