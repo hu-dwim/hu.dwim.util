@@ -13,6 +13,16 @@
   (:method (context error)
     *debug-on-error*))
 
+(def (function e) best-effort-log-error (&optional message &rest args)
+  (when message
+    (bind ((formatted (or (ignore-errors
+                            (apply #'format nil message args))
+                          (ignore-errors
+                            (format nil "Error while formatting error message.~%  Format control: ~A~%  Argument types: ~A" message (mapcar #'type-of args)))
+                          "Err, complete meltdown in BEST-EFFORT-LOG-ERROR. Sorry, no more clue is available...")))
+      (ignore-errors
+        (write-string formatted *error-output*)))))
+
 (def (with-macro* e) with-layered-error-handlers (level-1-error-handler abort-unit-of-work-callback
                                                                         &rest args &key
                                                                         (log-to-debug-io #t)

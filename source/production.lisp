@@ -9,14 +9,6 @@
 ;;;;;;
 ;;; Production support
 
-(def (function e) best-effort-log-error (&optional message &rest args)
-  (when message
-    (bind ((formatted (or (ignore-errors
-                            (apply #'format nil message args))
-                          (format nil "Error while formatting error message.~%  Format control: ~A~%  Argument types: ~A" message (mapcar #'type-of args)))))
-      (ignore-errors
-        (print formatted *error-output*)))))
-
 (def (function e) ensure-utf-8-external-format ()
   #+sbcl
   (unless (eq (sb-impl::default-external-format) :utf-8)
