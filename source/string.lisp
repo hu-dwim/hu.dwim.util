@@ -7,6 +7,46 @@
 (in-package :hu.dwim.util)
 
 ;;;;;;
+;;; Symbols
+
+(def (function e) find-symbol* (symbol-name &key packages (otherwise nil otherwise?))
+  (check-type symbol-name string)
+  (setf packages (ensure-list packages))
+  (macrolet ((otherwise (&body body)
+               `(if otherwise?
+                    (handle-otherwise otherwise)
+                    (progn
+                      ,@body))))
+    (bind ((first-colon-position (position #\: symbol-name :test #'char=))
+           (last-colon-position (position #\: symbol-name :test #'char= :from-end #t))
+           (symbol-name/name (if last-colon-position
+                                 (subseq symbol-name (1+ last-colon-position))
+                                 symbol-name))
+           (symbol-name/package (when first-colon-position
+                                  (subseq symbol-name 0 first-colon-position)))
+           (colon-count (if first-colon-position
+                            (- (1+ last-colon-position) first-colon-position)
+                            0))
+           ;; (external? (= colon-count 1))
+           )
+      (unless (<= colon-count 2)
+        (return-from find-symbol* (otherwise (error "~S is not a legal symbol name" symbol-name))))
+      (flet ((try-in-package (package &key (otherwise nil otherwise?))
+               (check-type package package)
+               ;; TODO add support for external/internal handling
+               (or (find-symbol symbol-name/name package)
+                   (otherwise (error "~S does not exist in package ~A" symbol-name/name package)))))
+        (if symbol-name/package
+            (bind ((package (find-package symbol-name/package)))
+              (if package
+                  (try-in-package package)
+                  (otherwise (error "Package named ~S does not exist" symbol-name/package))))
+            (or (some (lambda (package-name)
+                        (try-in-package (find-package package-name) :otherwise nil))
+                      packages)
+                (otherwise (error "Could not find symbol named ~S in packages ~S" symbol-name packages))))))))
+
+;;;;;;
 ;;; Whitespaces
 
 (def (constant e) +whitespace-characters+ (list #\Space #\Tab #\NewLine #\Return))
