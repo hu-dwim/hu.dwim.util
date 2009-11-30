@@ -136,11 +136,11 @@
      ,@body))
 
 (def (macro e) make-error-log-decorator (&body body)
-  `(lambda ()
+  `(named-lambda make-error-log-decorator/body ()
      ,@body))
 
 (def (macro e) make-special-variable-printing-error-log-decorator (&rest variables)
-  `(lambda ()
+  `(named-lambda make-special-variable-printing-error-log-decorator/body ()
      (bind ((*package* (find-package "COMMON-LISP"))
             (*print-right-margin* 150))
        ,@(iter (for variable :in variables)
@@ -192,6 +192,7 @@
       (-body-))))
 
 (def function current-thread-name-if-available ()
+  ;; TODO err... it's kinda...
   (awhen (find-package "BORDEAUX-THREADS")
     (funcall (find-symbol "THREAD-NAME" it) (funcall (find-symbol "CURRENT-THREAD" it)))))
 

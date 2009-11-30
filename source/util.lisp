@@ -22,12 +22,10 @@
 (def (constant e) +no-error-status-code+ 0)
 
 (def (function e) quit (status-code)
-  #+nil
-  (log.info "Quiting production image with status-code ~A" status-code)
-  #+sbcl
-  (sb-ext:quit :recklessly-p #t :unix-status status-code)
-  #-sbcl
-  (not-yet-implemented))
+  ;; (log.info "Quiting production image with status-code ~A" status-code)
+  #*((:sbcl (sb-ext:quit :recklessly-p #t :unix-status status-code))
+     (t #.(warn "~S is not implemented on your platform" 'quit)
+        (not-yet-implemented))))
 
 (def (function e) guess-file-type (pathname)
   ;; TODO: KLUDGE: not portable, etc.
