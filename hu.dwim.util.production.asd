@@ -13,6 +13,7 @@
   :description "Various utilities used by the dwim.hu team. Contains code for producing standalone executable services."
   :depends-on (:cl-fad
                :command-line-arguments
+               :hu.dwim.logger
                :hu.dwim.util
                :iolib.syscalls)
   :components ((:module "source"

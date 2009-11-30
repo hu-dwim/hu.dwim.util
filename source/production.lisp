@@ -26,22 +26,27 @@
           config-file-name)
         nil)))
 
-(def (function e) disable-debugger ()
-  #+sbcl(sb-ext:disable-debugger)
-  ;; TODO delme?
-  ;; no! what about errors that happen in non-guarded code? silently ignored when the vm exits?
-  #+nil
-  (bind ((hook (lambda (condition hook)
-                 (declare (ignore hook))
-                 (ignore-errors
-                   (log-error-with-backtrace project-logger condition :runtime-level '+fatal+))
-                 #+sbcl
-                 (best-effort-log-error "~&~@<unhandled ~S~@[ in thread ~S~]: ~2I~_~A~:>~2%"
-                                        (type-of condition) sb-thread:*current-thread* condition)
-                 (quit 1))))
-    #+sbcl
-    (setf sb-ext:*invoke-debugger-hook* hook)
-    (setf *debugger-hook* hook))
+(def function disabled-debugger-hook (condition &optional logger)
+  (bind ((message (or (ignore-errors
+                        (build-backtrace-string condition :message "Unhandled error while debugger is disabled, quitting..." :timestamp (get-universal-time)))
+                      "Err, complete meltdown in DISABLED-DEBUGGER-HOOK. Sorry, no more clue is available...")))
+    (when message
+      (ignore-errors
+        (write-string message *error-output*)
+        (terpri *error-output*))
+      (when logger
+        (hu.dwim.logger:handle-log-message logger message hu.dwim.logger:+fatal+))))
+  (quit 3))
+
+(def (function e) disable-debugger (&optional logger)
+  (declare (ignorable logger))
+  #*((:sbcl (flet ((call-disabled-debugger-hook (condition hook)
+                     (declare (ignore hook))
+                     (disabled-debugger-hook condition logger)))
+              (sb-ext:disable-debugger) ; so that we unconditionally disable LDB
+              (setf sb-ext:*invoke-debugger-hook* #'call-disabled-debugger-hook)
+              (setf *debugger-hook* #'call-disabled-debugger-hook)))
+     (t #.(warn "~S is not fully implemented for your implementation which may lead to undesired consequences" 'disable-debugger)))
   (format *debug-io* "Disabled debugger~%"))
 
 (def (function e) start-swank-server (port)
