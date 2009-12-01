@@ -18,7 +18,7 @@
                              (:file "generic-operator" :depends-on ("package"))
                              (:file "hash-table" :depends-on ("package"))
                              (:file "integer-to-string" :depends-on ("package"))
-                             (:file "linear-mapping" :depends-on ("package"))
+                             (:file "linear-mapping" :depends-on ("type"))
                              (:file "package")
                              (:file "string" :depends-on ("package"))
                              (:file "threads-early" :depends-on ("package"))

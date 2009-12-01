@@ -11,7 +11,8 @@
 (defsystem :hu.dwim.util.error-handling
   :class hu.dwim.system
   :description "Various utilities, contains code for complex error handling."
-  :depends-on (:hu.dwim.util
+  :depends-on (:hu.dwim.logger
+               :hu.dwim.util
                :hu.dwim.defclass-star+hu.dwim.def)
   :components ((:module "source"
                 :components ((:file "error-handling")))
