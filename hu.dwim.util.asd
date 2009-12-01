@@ -16,6 +16,7 @@
   :components ((:module "source"
                 :components ((:file "dynamic-context" :depends-on ("util"))
                              (:file "integer-to-string" :depends-on ("package"))
+                             (:file "linear-mapping" :depends-on ("package"))
                              (:file "package")
                              (:file "string" :depends-on ("package"))
                              (:file "threads-early" :depends-on ("package"))
