@@ -10,7 +10,7 @@
 
 (defsystem :hu.dwim.util.production
   :class hu.dwim.system
-  :description "Various utilities used by the dwim.hu team. Contains code for producing standalone executable services."
+  :description "Various utilities, contains code for producing standalone executable services."
   :depends-on (:cl-fad
                :command-line-arguments
                :hu.dwim.logger

@@ -10,7 +10,7 @@
 
 (defsystem :hu.dwim.util.error-handling
   :class hu.dwim.system
-  :description "Various utilities used by the dwim.hu team. Contains code for complex error handling."
+  :description "Various utilities, contains code for complex error handling."
   :depends-on (:hu.dwim.util
                :hu.dwim.defclass-star+hu.dwim.def)
   :components ((:module "source"

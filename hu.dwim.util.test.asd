@@ -10,10 +10,7 @@
 
 (defsystem :hu.dwim.util.test
   :class hu.dwim.test-system
-  :description "Test suite for hu.dwim.util"
-  :depends-on (:hu.dwim.def+hu.dwim.stefil
-               :hu.dwim.def+swank
-               :hu.dwim.stefil+swank
+  :depends-on (:hu.dwim.stefil+hu.dwim.def+swank
                :hu.dwim.util.all)
   :components ((:module "test"
                 :components ((:file "package")

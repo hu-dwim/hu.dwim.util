@@ -10,7 +10,7 @@
 
 (defsystem :hu.dwim.util
   :class hu.dwim.system
-  :description "Various utilities used by the dwim.hu team. This is the most basic system that only introduce a small number of external dependencies."
+  :description "Various utilities, this is the most basic system that only introduce a small number of external dependencies."
   :depends-on (:hu.dwim.def+hu.dwim.common
                :hu.dwim.syntax-sugar)
   :components ((:module "source"

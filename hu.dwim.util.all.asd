@@ -10,7 +10,7 @@
 
 (defsystem :hu.dwim.util.all
   :class hu.dwim.system
-  :description "Various utilities used by the dwim.hu team. Contains everything and therefore it's heavy on external dependencies."
+  :description "Various utilities, contains everything and therefore it's heavy on external dependencies."
   :depends-on (:hu.dwim.util
                :hu.dwim.util.error-handling
                :hu.dwim.util.error-handling+swank
