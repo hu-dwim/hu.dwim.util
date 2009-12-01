@@ -15,6 +15,8 @@
                :hu.dwim.syntax-sugar)
   :components ((:module "source"
                 :components ((:file "dynamic-context" :depends-on ("util"))
+                             (:file "generic-operator" :depends-on ("package"))
+                             (:file "hash-table" :depends-on ("package"))
                              (:file "integer-to-string" :depends-on ("package"))
                              (:file "linear-mapping" :depends-on ("package"))
                              (:file "package")
