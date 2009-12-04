@@ -25,8 +25,7 @@
 
 (def with-macro with-debugger-hook-for-break (hook)
   "CL:BREAK is specified to ignore CL:*DEBUGGER-HOOK*, so we need a platform dependent way to hook the debugger for it."
-  #*((:sbcl (bind ((sb-ext:*invoke-debugger-hook* hook)
-                   (*debugger-hook* nil))
+  #*((:sbcl (bind ((sb-ext:*invoke-debugger-hook* hook))
               (-body-)))
      (t #.(warn "WITH-DEBUGGER-HOOK-FOR-BREAK is not implemented for your platform. This may interfere with the behavior of CL:BREAK while the debugger is disabled...")
         (-body-))))
