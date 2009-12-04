@@ -115,3 +115,46 @@
 
 (def (function e) string-with-roman-numerals< (str1 str2 &key (start1 0) (start2 0))
   (string-with-numeric< str1 str2 #'roman-numeral-digit-character? #'parse-roman-numeral :start1 start1 :start2 start2))
+
+;;;;;;
+;;; String utils
+
+(def (constant e) +lower-case-ascii-alphabet+ (coerce "abcdefghijklmnopqrstuvwxyz" 'simple-base-string))
+(def (constant e) +upper-case-ascii-alphabet+ (coerce "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 'simple-base-string))
+(def (constant e) +ascii-alphabet+ (coerce (concatenate 'string +upper-case-ascii-alphabet+ +lower-case-ascii-alphabet+) 'simple-base-string))
+(def (constant e) +alphanumeric-ascii-alphabet+ (coerce (concatenate 'string +ascii-alphabet+ "0123456789") 'simple-base-string))
+(def (constant e) +base64-alphabet+ (coerce (concatenate 'string +alphanumeric-ascii-alphabet+ "+/") 'simple-base-string))
+
+(def (function io) random-string/simple-base-string (&optional (length 32) (alphabet +ascii-alphabet+) prefix)
+  (check-type length array-index)
+  (check-type alphabet simple-base-string)
+  (assert (or (null prefix)
+              (< (length prefix) length)))
+  (loop
+     :with result = (make-string length :element-type 'base-char)
+     :with alphabet-length = (length alphabet)
+     :initially (when prefix
+                  (replace result prefix))
+     :for i :from (if prefix (length prefix) 0) :below length
+     :do (setf (aref result i) (aref alphabet (random alphabet-length)))
+     :finally (return result)))
+
+(def (function eoi) random-string (&optional length (alphabet +ascii-alphabet+))
+  (check-type length (or null array-index))
+  (check-type alphabet string)
+  (unless length
+    (setf length 32))
+  (etypecase alphabet
+    (simple-base-string
+     (random-string/simple-base-string length alphabet))
+    (string
+     (loop
+        :with result = (make-string length)
+        :with alphabet-length = (length alphabet)
+        :for i :below length
+        :do (setf (aref result i) (aref alphabet (random alphabet-length)))
+        :finally (return result)))))
+
+(declaim (notinline random-string random-simple-base-string)) ; make them inlinable, but not inlined by default
+
+;;;;;;
