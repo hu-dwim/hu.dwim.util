@@ -125,36 +125,33 @@
 (def (constant e) +alphanumeric-ascii-alphabet+ (coerce (concatenate 'string +ascii-alphabet+ "0123456789") 'simple-base-string))
 (def (constant e) +base64-alphabet+ (coerce (concatenate 'string +alphanumeric-ascii-alphabet+ "+/") 'simple-base-string))
 
-(def (function io) random-string/simple-base-string (&optional (length 32) (alphabet +ascii-alphabet+) prefix)
-  (check-type length array-index)
-  (check-type alphabet simple-base-string)
-  (assert (or (null prefix)
-              (< (length prefix) length)))
-  (loop
-     :with result = (make-string length :element-type 'base-char)
-     :with alphabet-length = (length alphabet)
-     :initially (when prefix
-                  (replace result prefix))
-     :for i :from (if prefix (length prefix) 0) :below length
-     :do (setf (aref result i) (aref alphabet (random alphabet-length)))
-     :finally (return result)))
-
-(def (function eoi) random-string (&optional length (alphabet +ascii-alphabet+))
-  (check-type length (or null array-index))
-  (check-type alphabet string)
+(def (function eoi) random-string (&optional length (alphabet +ascii-alphabet+) prefix)
   (unless length
     (setf length 32))
-  (etypecase alphabet
-    (simple-base-string
-     (random-string/simple-base-string length alphabet))
-    (string
-     (loop
-        :with result = (make-string length)
+  (unless alphabet
+    (setf alphabet +ascii-alphabet+))
+  (check-type length (or null array-index))
+  (check-type alphabet string)
+  (assert (or (null prefix)
+              (< (length prefix) length)))
+  (macrolet ((with-string-dispatch (&body body)
+               `(etypecase alphabet
+                  (simple-base-string (symbol-macrolet ((-element-type- 'base-char))
+                                        ,@body))
+                  (simple-string      (symbol-macrolet ((-element-type- 'character))
+                                        ,@body))
+                  (string             (symbol-macrolet ((-element-type- 'character))
+                                        ,@body)))))
+    (with-string-dispatch
+      (loop
+        :with result = (make-string length :element-type -element-type-)
         :with alphabet-length = (length alphabet)
-        :for i :below length
+        :initially (when prefix
+                     (replace result prefix))
+        :for i :from (if prefix (length prefix) 0) :below length
         :do (setf (aref result i) (aref alphabet (random alphabet-length)))
         :finally (return result)))))
 
-(declaim (notinline random-string random-simple-base-string)) ; make them inlinable, but not inlined by default
+(declaim (notinline random-string)) ; make it/them inlinable, but not inlined by default
 
 ;;;;;;
