@@ -10,7 +10,7 @@
 ;;; human readable thread id's
 
 (def (namespace :weakness :key) thread-id)
-(def global *thread-id-counter* (make-atomic-counter))
+(def global-variable *thread-id-counter* (make-atomic-counter))
 
 (def (function e) human-readable-thread-id (&optional (thread (bordeaux-threads:current-thread)))
   (assert (bordeaux-threads:threadp thread))
