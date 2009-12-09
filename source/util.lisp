@@ -45,10 +45,19 @@
  `(bind ((*package* #.(find-package "KEYWORD")))
     ,@body))
 
-(def (function e) fully-qualified-symbol-name (symbol)
-  (with-keyword-package
-    (with-output-to-string (*standard-output*)
-      (write symbol))))
+(def (function e) fully-qualified-symbol-name (symbol &key always-internal)
+  (with-output-to-string (*standard-output*)
+    (bind ((symbol-name (symbol-name symbol))
+           (package (symbol-package symbol))
+           (keyword-package #.(find-package "KEYWORD")))
+      (unless (eq package keyword-package)
+        (write-string (package-name package)))
+      (write-string (if (or (and always-internal
+                                 (not (eq package keyword-package)))
+                            (not (eq (nth-value 1 (find-symbol symbol-name package)) :external)))
+                        "::"
+                        ":"))
+      (write-string symbol-name))))
 
 ;;;;;;
 ;;; Anaphoric extensions
