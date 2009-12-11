@@ -23,11 +23,12 @@
       (ignore-errors
         (write-string formatted *error-output*)))))
 
+;; TODO rename? to what? with-invoke-debugger-hook?
 (def with-macro with-debugger-hook-for-break (hook)
-  "CL:BREAK is specified to ignore CL:*DEBUGGER-HOOK*, so we need a platform dependent way to hook the debugger for it."
+  "CL:BREAK is specified to ignore CL:*DEBUGGER-HOOK*, so we need a platform dependent way to hook the debugger to be able to catch it."
   #*((:sbcl (bind ((sb-ext:*invoke-debugger-hook* hook))
               (-body-)))
-     (t #.(warn "WITH-DEBUGGER-HOOK-FOR-BREAK is not implemented for your platform. This may interfere with the behavior of CL:BREAK while the debugger is disabled...")
+     (t #.(warn "~S is not implemented for your platform. This may interfere with the behavior of CL:BREAK while the debugger is disabled..." 'with-debugger-hook-for-break)
         (-body-))))
 
 (def (with-macro* e) with-layered-error-handlers (level-1-error-handler abort-unit-of-work-callback
@@ -98,7 +99,7 @@
       (handler-bind
           ((serious-condition #'handle-level-1-error))
         (flet ((with-layered-error-handlers/debugger-hook (condition hook)
-                 ;; this is only here because (break) is going through the debugger hooks, so it needs special care...
+                 ;; this is only here because (break) ignores the *debugger-hook* variables, so it needs platform dependent care...
                  (declare (ignore hook))
                  (when log-to-debug-io
                    (format *debug-io* "~&WITH-LAYERED-ERROR-HANDLERS/DEBUGGER-HOOK is invoked, most probably because of CL:BREAK (if not, then that's a big WTF?!)~%"))
