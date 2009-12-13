@@ -33,13 +33,16 @@
     (switch (type :test #'string=)
       ("asd" :asd)
       ("lisp" :lisp)
+      ("txt" :text)
+      ("text" :text)
       (t
        ;; TODO this is a bit too heavy-weight, both on dependencies and runtime implications...
-       #+nil
-       (bind ((result (trivial-shell:shell-command (concatenate 'string "file " (namestring pathname)))))
-         (cond ((search "text" result) :text)
-               (t :binary)))
-       :binary))))
+       #*((:sbcl
+           (bind ((result (with-output-to-string (output)
+                            (sb-ext:run-program "/usr/bin/file" (list (namestring pathname)) :output output))))
+             (cond ((search "text" result) :text)
+                   (t :binary))))
+          (t :binary))))))
 
 (def (macro e) with-keyword-package (&body body)
  `(bind ((*package* #.(find-package "KEYWORD")))
