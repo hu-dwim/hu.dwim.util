@@ -35,14 +35,16 @@ if we strictly followed CLHS, then it should be the following:
 (def (function e) find-class-for-type (type)
   (or (gethash type *class-for-types*)
       (setf (gethash type *class-for-types*)
-            (first (sort (iter (for (key value) :in-hashtable sb-kernel::*classoid-cells*)
-                               (for class = (find-class key #f))
-                               (when (and class
-                                          (not (typep class 'built-in-class))
-                                          (subtypep class type))
-                                 (collect class)))
-                         (lambda (class-1 class-2)
-                           (subtypep class-2 class-1)))))))
+            (or (when (symbolp type)
+                  (find-class type nil))
+                (first (sort (iter (for (key value) :in-hashtable sb-kernel::*classoid-cells*)
+                                   (for class = (find-class key #f))
+                                   (when (and class
+                                              (not (typep class 'built-in-class))
+                                              (subtypep class type))
+                                     (collect class)))
+                             (lambda (class-1 class-2)
+                               (subtypep class-2 class-1))))))))
 
 ;; TODO: type expand
 (def (function e) type-instance-count-upper-bound (type)
