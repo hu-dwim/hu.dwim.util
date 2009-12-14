@@ -14,11 +14,13 @@
   :depends-on (:hu.dwim.def+hu.dwim.common
                :hu.dwim.syntax-sugar)
   :components ((:module "source"
-                :components ((:file "dynamic-context" :depends-on ("util"))
+                :components ((:file "compact-class" :depends-on ("mop" "util"))
+                             (:file "dynamic-context" :depends-on ("util"))
                              (:file "generic-operator" :depends-on ("package"))
                              (:file "hash-table" :depends-on ("package"))
                              (:file "integer-to-string" :depends-on ("package"))
                              (:file "linear-mapping" :depends-on ("type"))
+                             (:file "mop" :depends-on ("package"))
                              (:file "package")
                              (:file "string" :depends-on ("package"))
                              (:file "threads-early" :depends-on ("package"))
