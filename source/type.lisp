@@ -52,7 +52,10 @@ if we strictly followed CLHS, then it should be the following:
     (symbol
      (case type
        ((nil) 0)
-       (null 1)))
+       (null 1)
+       (base-char 128)
+       (boolean 2)
+       (single-float (expt 2 32))))
     (cons
      (case (first type)
        (eql 1)
@@ -61,6 +64,10 @@ if we strictly followed CLHS, then it should be the following:
        (integer
         (when (length= type 3)
           (1+ (- (third type) (second type)))))
+       ((signed-byte unsigned-byte)
+        (expt 2 (second type)))
+       (simple-base-string
+        (expt 128 (second type)))
        (not nil)
        (or
         (iter (for element :in (cdr type))
@@ -88,6 +95,13 @@ if we strictly followed CLHS, then it should be the following:
         (cdr type))
        (integer
         (iter (for i :from (second type) :to (third type))
+              (collect i)))
+       (unsigned-byte
+        (iter (for i :from 0 :below (expt 2 (second type)))
+              (collect i)))
+       (signed-byte
+        (iter (with limit = (expt 2 (1- (second type))))
+              (for i :from (- limit) :below limit)
               (collect i)))
        (not nil)
        (or
