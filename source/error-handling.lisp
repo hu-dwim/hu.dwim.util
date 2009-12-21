@@ -225,13 +225,13 @@
                                                              (return-from building "Failed to build backtrace due to multiple nested errors. Giving up...")))
         (with-output-to-string (*standard-output*)
           (when timestamp
-            (format t "~&*** At: ~A" timestamp))
+            (format t "~%*** At: ~A" timestamp))
           (when message
             (format t "~&*** Message:~%")
             (apply #'format t (ensure-list message)))
           (awhen (current-thread-name-if-available)
             (format t "~&*** In thread: ~A" it))
-          (format t "~&*** Error:~%~A~&*** Backtrace:~%" error)
+          (format t "~&*** Error of type ~S:~%~A~&*** Backtrace:~%" (type-of error) error)
           (if (fboundp 'collect-backtrace)
               (bind ((backtrace (funcall 'collect-backtrace :start 6))
                      (*print-pretty* #f))
