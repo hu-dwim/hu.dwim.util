@@ -125,7 +125,7 @@
         (write-string message *error-output*)
         (terpri *error-output*))
       (when logger
-        (hu.dwim.logger:handle-log-message logger message hu.dwim.logger:+fatal+))))
+        (hu.dwim.logger:handle-log-message logger hu.dwim.logger:+fatal+ message nil))))
   (quit 42))
 
 (def (function e) disable-debugger (&optional logger)
