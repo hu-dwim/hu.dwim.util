@@ -22,6 +22,7 @@
                              (:file "linear-mapping" :depends-on ("type"))
                              (:file "mop" :depends-on ("package"))
                              (:file "package")
+                             (:file "source" :depends-on ("string"))
                              (:file "string" :depends-on ("package"))
                              (:file "threads-early" :depends-on ("package"))
                              (:file "type" :depends-on ("package"))
