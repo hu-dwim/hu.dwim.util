@@ -166,12 +166,10 @@
                                      'unbound)))))))
 
 (def (macro e) with-error-log-decorator (decorator &body body)
-  `(bind ((*error-log-decorators* (cons ,(if (symbolp decorator)
-                                             `(quote ,decorator)
-                                             decorator)
-                                        *error-log-decorators*)))
+  `(bind ((*error-log-decorators* (cons ,decorator *error-log-decorators*)))
      ,@body))
 
+(def (macro/multiple-arguments-variant e) with-error-log-decorator)
 
 ;;;;;;
 ;;; Backtrace extraction
