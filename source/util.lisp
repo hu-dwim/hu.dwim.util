@@ -62,6 +62,16 @@
                         ":"))
       (write-string symbol-name))))
 
+(def (definer e :available-flags "ioed") macro/multiple-arguments-variant (singular-macro-name)
+  (bind ((plural (intern (format nil "~aS" singular-macro-name))))
+    `(def (macro ,@-options-) ,plural (bindings &body body)
+       ,(format nil "Multiple binding version of ~(~a~)." singular-macro-name)
+       (if bindings
+           `(,',singular-macro-name ,(car bindings)
+                                    (,',plural ,(cdr bindings)
+                                               ,@body))
+           `(progn ,@body)))))
+
 ;;;;;;
 ;;; Anaphoric extensions
 
