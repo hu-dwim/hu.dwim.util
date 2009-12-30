@@ -14,6 +14,7 @@
   :depends-on (:hu.dwim.util
                :hu.dwim.util.error-handling
                :hu.dwim.util.error-handling+swank
+               :hu.dwim.util.finite-state-machine
                :hu.dwim.util.i18n
                :hu.dwim.util.mop
                :hu.dwim.util.production
