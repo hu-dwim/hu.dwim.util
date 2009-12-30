@@ -12,6 +12,7 @@
   :class hu.dwim.system
   :description "Various utilities, this is the most basic system that only introduce a small number of external dependencies."
   :depends-on (:hu.dwim.def+hu.dwim.common
+               :hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.syntax-sugar)
   :components ((:module "source"
                 :components ((:file "compact-class" :depends-on ("mop" "util"))
