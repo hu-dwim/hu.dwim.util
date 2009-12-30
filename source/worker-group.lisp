@@ -31,10 +31,7 @@
    (keep-on-running #t :type boolean)
    (thread :type t)))
 
-(def (function e) make-worker (name)
-  (make-instance 'worker-group :worker-name name))
-
-(def (function e) worker-loop (worker-group worker)
+(def function worker-loop (worker-group worker)
   (unwind-protect
        (iter (while (keep-on-running-p worker))
              (for job = (pop-job worker-group
@@ -60,6 +57,9 @@
     (with-lock-held ((worker-lock-of worker-group))
       (deletef (workers-of worker-group) worker))
     (condition-notify (worker-condition-variable-of worker-group))))
+
+(def (function e) make-worker-group (name)
+  (make-instance 'worker-group :worker-name name))
 
 (def (function e) start-worker (worker-group &optional (worker-environment-function #'funcall))
   (with-lock-held ((worker-lock-of worker-group))
