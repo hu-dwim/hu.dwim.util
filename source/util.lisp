@@ -74,7 +74,8 @@
 
 (def (with-macro* e) with-profiling ()
   #*((:sbcl
-      #.(require :sb-sprof)
+      #.(progn (require :sb-sprof) nil)
+      (load-time-value (require :sb-sprof))
       (sb-sprof:with-profiling ()
         (-body-)))
      (t #.(warn "~S is not implemented for your platform, no profiling information will be available." 'with-profiling)
