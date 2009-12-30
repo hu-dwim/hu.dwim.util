@@ -49,7 +49,7 @@
 ;;;;;;
 ;;; Whitespaces
 
-(def (constant e) +whitespace-characters+ (list #\Space #\Tab #\NewLine #\Return))
+(def (constant e) +whitespace-characters+ (list #\Space #\Tab #\NewLine #\Return #\Page))
 
 (def (function e) string-trim-whitespace (text)
   (string-trim +whitespace-characters+ text))
