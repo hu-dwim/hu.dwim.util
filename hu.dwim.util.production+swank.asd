@@ -8,9 +8,9 @@
 
 (in-package :hu.dwim.asdf)
 
-(defsystem :hu.dwim.util.error-handling+swank
+(defsystem :hu.dwim.util.production+swank
   :class hu.dwim.system
-  :depends-on (:hu.dwim.util.error-handling
+  :depends-on (:hu.dwim.util.production
                :swank)
   :components ((:module "integration"
-                :components ((:file "error-handling+swank")))))
+                :components ((:file "production+swank")))))

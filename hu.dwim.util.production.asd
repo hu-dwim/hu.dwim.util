@@ -15,8 +15,7 @@
                :command-line-arguments
                :hu.dwim.logger
                :hu.dwim.util
-               :iolib.syscalls
-               :swank)
+               :iolib.syscalls)
   :components ((:module "source"
                 :components ((:file "production")
                              (:file "command-line")))))

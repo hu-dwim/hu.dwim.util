@@ -17,4 +17,5 @@
                :hu.dwim.util.i18n
                :hu.dwim.util.mop
                :hu.dwim.util.production
+               :hu.dwim.util.production+swank
                :hu.dwim.util.threads))
