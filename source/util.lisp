@@ -72,6 +72,14 @@
                                                ,@body))
            `(progn ,@body)))))
 
+(def (with-macro* e) with-profiling ()
+  #*((:sbcl
+      #.(require :sb-sprof)
+      (sb-sprof:with-profiling ()
+        (-body-)))
+     (t #.(warn "~S is not implemented for your platform, no profiling information will be available." 'with-profiling)
+        (-body-))))
+
 ;;;;;;
 ;;; Anaphoric extensions
 
