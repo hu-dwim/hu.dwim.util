@@ -47,15 +47,18 @@
                 (otherwise (error "Could not find symbol named ~S in packages ~S" symbol-name packages))))))))
 
 ;;;;;;
-;;; Whitespaces
+;;; Whitespace
 
 (def (constant e) +whitespace-characters+ (list #\Space #\Tab #\NewLine #\Return #\Page))
 
 (def (function e) string-trim-whitespace (text)
   (string-trim +whitespace-characters+ text))
 
+(def (function e) whitespace? (character)
+  (member character +whitespace-characters+ :test #'char=))
+
 ;;;;;;
-;;; Concatenate
+;;; String concatenation
 
 (def (function eo) string+ (&rest args)
   ;; don't inline, otherwise the compiler macro is kicked
@@ -63,6 +66,13 @@
 
 (def compiler-macro string+ (&rest args)
   `(concatenate 'string ,@args))
+
+(def (function e) join-strings (strings &key (separator #\Space))
+  (with-output-to-string (string)
+    (iter (for el :in-sequence strings)
+          (unless (first-time-p)
+            (princ separator))
+          (write-string el string))))
 
 ;;;;;;
 ;;; Roman numeral
@@ -117,13 +127,16 @@
   (string-with-numeric< str1 str2 #'roman-numeral-digit-character? #'parse-roman-numeral :start1 start1 :start2 start2))
 
 ;;;;;;
-;;; String utils
+;;; Well known sets
 
 (def (constant e) +lower-case-ascii-alphabet+ (coerce "abcdefghijklmnopqrstuvwxyz" 'simple-base-string))
 (def (constant e) +upper-case-ascii-alphabet+ (coerce "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 'simple-base-string))
 (def (constant e) +ascii-alphabet+ (coerce (concatenate 'string +upper-case-ascii-alphabet+ +lower-case-ascii-alphabet+) 'simple-base-string))
 (def (constant e) +alphanumeric-ascii-alphabet+ (coerce (concatenate 'string +ascii-alphabet+ "0123456789") 'simple-base-string))
 (def (constant e) +base64-alphabet+ (coerce (concatenate 'string +alphanumeric-ascii-alphabet+ "+/") 'simple-base-string))
+
+;;;;;;
+;;; Random string
 
 (def (function eoi) random-string (&optional length (alphabet +ascii-alphabet+) prefix)
   (unless length
@@ -155,3 +168,30 @@
 (declaim (notinline random-string)) ; make it/them inlinable, but not inlined by default
 
 ;;;;;;
+;;; Levenshtein distance
+
+(def (function e) levenshtein-distance (s1 s2)
+  (let* ((width (1+ (length s1)))
+	 (height (1+ (length s2)))
+	 (d (make-array (list height width))))
+    (dotimes (x width)
+      (setf (aref d 0 x) x))
+    (dotimes (y height)
+      (setf (aref d y 0) y))
+    (dotimes (x (length s1))
+      (dotimes (y (length s2))
+	(setf (aref d (1+ y) (1+ x))
+	      (min (1+ (aref d y (1+ x)))
+		   (1+ (aref d (1+ y) x))
+		   (+ (aref d y x)
+		      (if (char= (aref s1 x) (aref s2 y))
+			  0
+			  1))))))
+    (aref d (1- height) (1- width))))
+
+(def (function e) levenshstein-relative-distance (s1 s2)
+  (bind ((max-distance (max (length s1) (length s2)))
+         (distance (levenshtein-distance s1 s2)))
+    (if (zerop max-distance)
+        0
+        (/ distance max-distance))))

@@ -12,14 +12,14 @@
 (def special-variable *soap-stream*)
 
 (eval-always
-  (def function with-quasi-quoted-soap-xml-to-string-emitting-form-syntax ()
+  (def (function e) with-quasi-quoted-soap-xml-to-string-emitting-form-syntax ()
     (hu.dwim.quasi-quote.xml:with-quasi-quoted-xml-to-string-emitting-form-syntax '*soap-stream*)))
 
 (def macro emit-soap-request-to-string (&body forms)
   `(with-output-to-string (*soap-stream*)
      (hu.dwim.quasi-quote:emit ,@forms)))
 
-(def (constant :test #'string=) +xml-namespace-uri/soap+ "http://www.w3.org/2003/05/soap-envelope")
+(def (constant e) +xml-namespace-uri/soap+ "http://www.w3.org/2003/05/soap-envelope")
 
 (def function make-soap-envelope (body)
   {with-quasi-quoted-soap-xml-to-string-emitting-form-syntax

@@ -19,6 +19,10 @@
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@body))
 
+(def (function ioe) eval-interpret (form)
+  (bind ((sb-ext:*evaluator-mode* :interpret))
+    (eval form)))
+
 (def (constant e) +no-error-status-code+ 0)
 
 (def (function e) quit (status-code)
@@ -80,37 +84,6 @@
         (-body-)))
      (t #.(warn "~S is not implemented for your platform, no profiling information will be available." 'with-profiling)
         (-body-))))
-
-;;;;;;
-;;; Anaphoric extensions
-
-(def (macro e) if-bind (var test &body then/else)
-  (assert (first then/else)
-          (then/else)
-          "IF-BIND missing THEN clause.")
-  (destructuring-bind (then &optional else)
-      then/else
-    `(let ((,var ,test))
-       (if ,var ,then ,else))))
-
-(def (macro e) when-bind (var test &body body)
-  `(if-bind ,var ,test (progn ,@body)))
-
-(def (macro e) cond-bind (var &body clauses)
-  "Just like COND but VAR will be bound to the result of the
-  condition in the clause when executing the body of the clause."
-  (if clauses
-      (destructuring-bind ((test &rest body) &rest others)
-          clauses
-        `(if-bind ,var ,test
-           (progn ,@(if body body (list var)))
-           (cond-bind ,var ,@others)))
-      nil))
-
-(def (macro e) prog1-bind (var ret &body body)
-  `(let ((,var ,ret))
-    ,@body
-    ,var))
 
 ;;;;;;
 ;;; Binding related
@@ -178,22 +151,6 @@
     (t
      otherwise)))
 
-;;;;;;
-;;;; Sequence related
-
-(def (function e) ensure-sequence (thing)
-  (if (typep thing 'sequence)
-      thing
-      (list thing)))
-
-(def (function e) collect-if (predicate sequence)
-  "Collect elements from SEQUENCE for which the PREDICATE is true."
-  (remove-if (complement predicate) sequence))
-
-(def (function e) collect-if-typep (type sequence)
-  "Collect elements from SEQUENCE with the given TYPE."
-  (collect-if (lambda (element) (typep element type)) sequence))
-
 (def (function e) quoted-form? (thing)
   (and (consp thing)
        (eq (car thing) 'quote)
@@ -206,35 +163,20 @@
        (not (null (second thing)))
        (symbolp (second thing))))
 
-(def (function e) tree-substitute (new old list
-                                       &key from-end (test #'eql) (test-not nil)
-                                       (end nil) (count nil) (key nil) (start 0))
+(def (function e) tree-substitute (new old list &key from-end (test #'eql) (test-not nil) (end nil) (count nil) (key nil) (start 0))
   "Starting from LIST non-destructively replaces OLD with NEW."
   (if (consp list)
-      (prog1-bind result
-          (iter (for newitem in (ensure-list new))
-                (for olditem in (ensure-list old))
-                (setf list (substitute newitem olditem list :from-end from-end :test test :test-not test-not
-                                       :end end :count count :key key :start start))
-                (finally (return list)))
+      (bind ((result (iter (for newitem in (ensure-list new))
+                           (for olditem in (ensure-list old))
+                           (setf list (substitute newitem olditem list :from-end from-end :test test :test-not test-not
+                                                  :end end :count count :key key :start start))
+                           (finally (return list)))))
         (iter (for node first result then (cdr node))
               (until (null node))
               (for el = (car node))
               (setf (car node) (tree-substitute new old el :from-end from-end :test test :test-not test-not
-                                                :end end :count count :key key :start start))))
+                                                :end end :count count :key key :start start)))
+        result)
       (if (funcall test list old)
           new
           list)))
-
-;;;;;;
-;;; Place related
-
-(def macro notf (&rest places)
-  `(setf ,@(iter (for place in places)
-                 (collect place)
-                 (collect `(not ,place)))))
-
-(def (macro e) clearf (&rest places)
-  `(setf ,@(iter (for place in places)
-                 (collect place)
-                 (collect nil))))
