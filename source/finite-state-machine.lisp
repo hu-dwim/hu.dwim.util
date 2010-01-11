@@ -192,7 +192,7 @@
                                 (transitions-of fsm))))
       (if transition
           (let ((new-state (target-of transition)))
-            (hu.dwim.logger::standard-logger.debug "Firing transition ~A from finite state machine ~A for state property ~A in ~A" (name-of transition) (name-of fsm) state-property instance)
+            (hu.dwim.logger:standard-logger.debug "Firing transition ~A from finite state machine ~A for state property ~A in ~A" (name-of transition) (name-of fsm) state-property instance)
             (if (eq state new-state)
                 (when (slot-boundp state 'on-stay-action)
                   (apply (on-stay-action-of state) args))
