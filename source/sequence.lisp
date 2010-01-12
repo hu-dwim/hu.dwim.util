@@ -9,9 +9,13 @@
 ;;;;;;
 ;;; Sequence utilities
 
-(def (function e) the-only-element (elements)
-  (assert (length= 1 elements))
+(def (function ioe) the-only-element (elements)
+  (debug-only (assert (length= 1 elements)))
   (elt elements 0))
+
+(def (function ioe) the-non-nil (value)
+  (debug-only (assert value))
+  value)
 
 (def (function e) ensure-sequence (thing)
   (if (typep thing 'sequence)
