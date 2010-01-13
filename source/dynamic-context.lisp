@@ -20,7 +20,6 @@
   (assert (or (not struct-options) create-struct) () "STRUCT-OPTIONS while no CREATE-STRUCT?")
   (assert (not (and create-class create-struct)) () "Only one of CREATE-CLASS and CREATE-STRUCT is allowed.")
   (bind ((special-var-name (symbolicate "*" name "*"))
-         (extractor-name (symbolicate '#:current- name))
          (has-checker-name (symbolicate '#:has- name))
          (in-macro-name (symbolicate '#:in- name))
          (with-new-macro-name (symbolicate '#:with-new- name))
@@ -34,11 +33,10 @@
                                  (symbolicate class-name "-")))))
     `(progn
        (defvar ,special-var-name)
-       (declaim (inline ,has-checker-name ,extractor-name (setf ,extractor-name)))
+       (declaim (inline ,has-checker-name))
        ,(when export-symbols
               `(export (list
                         ',special-var-name
-                        ',extractor-name
                         ',has-checker-name
                         ',with-new-macro-name
                         ',with-macro-name
@@ -76,7 +74,7 @@
            `(bind ((,context-instance ,context)
                    ,@,(when chain-parents
                             ``((,parent (when (,',has-checker-name)
-                                          (,',extractor-name)))))
+                                          ,',special-var-name))))
                    (,',special-var-name ,context-instance))
               (declare (special ,',special-var-name)) ; KLUDGE with-call/cc in needs it currently
               ,@,(when chain-parents
@@ -88,22 +86,7 @@
                 (error ,',(string+ "Called with nil " (string-downcase name))))
               ,@forms)))
        (defun ,has-checker-name ()
-         (boundp ',special-var-name))
-       ;; KLUDGE: the rest is obsolete and will be dropped eventually
-       (defmacro ,in-macro-name (var-name-or-slot-name-list &body forms)
-         (bind ((slots (when (listp var-name-or-slot-name-list)
-                         var-name-or-slot-name-list)))
-           (if slots
-               `(with-slots ,slots (,',extractor-name)
-                  ,@forms)
-               `(bind ((,var-name-or-slot-name-list (,',extractor-name)))
-                  (declare (special ,',special-var-name)) ; KLUDGE with-call/cc in needs it currently
-                  ,@forms))))
-       ;; generate the current-... function
-       (defun ,extractor-name ()
-         ,special-var-name)
-       (defun (setf ,extractor-name) (value)
-         (setf ,special-var-name value)))))
+         (boundp ',special-var-name)))))
 
 (def (macro e) define-dynamic-context* (name direct-slots &rest args &key (defclass-macro-name 'defclass*) &allow-other-keys)
   (remove-from-plistf args :defclass-macro-name)
