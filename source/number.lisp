@@ -33,3 +33,11 @@
           list
           :key key
           :initial-value 1))
+
+(def (function e) round* (number &optional (divisor 1))
+  "CL:ROUND rounds so that .5 is rounded up for odd and down for even quotients. ROUND* always rounds .5 up."
+  (bind ((result
+          (if (< number 0)
+              (ceiling (- number (/ divisor 2)) divisor)
+              (floor (+ number (/ divisor 2)) divisor))))
+    (values result (- number (* result divisor)))))
