@@ -12,6 +12,7 @@
 (def (function e) enable-standard-hu.dwim-syntaxes ()
   "This function sets up the common readtable modifications we (http://dwim.hu) use in almost all of our projects. Some projects enable more, but this is available almost everywhere."
   (enable-sharp-boolean-syntax)
+  (enable-sharp-comment-syntax)
   (enable-readtime-wrapper-syntax)
   (enable-feature-cond-syntax))
 
