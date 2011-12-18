@@ -47,6 +47,12 @@
       (format t "[Call path is not available, see ~S for details.]" 'collect-call-path/impl)))
 
 ;;;;;;
+;;; Nested conditions
+
+(def (condition* e) nested-condition (condition)
+  ((nested-condition nil)))
+
+;;;;;;
 ;;; Error log decorators
 
 (def (special-variable :documentation "List of decorators that will be invoked when an error backtrace is logged. A decorator is a closure that will be FUNCALL'd and can print to *STANDARD-OUTPUT* (caret will not be on a new line when called).")
