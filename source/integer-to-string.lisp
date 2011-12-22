@@ -50,7 +50,7 @@
           (dolist (digit digits)
             (emit (code-char (+ (if (<= digit 9)
                                     #.(char-code #\0)
-                                    #.(- (char-code #\a) 10))
+                                    #.(- (char-code #\A) 10))
                                 digit)))))
         (bind ((real-result (make-array result-index :element-type 'base-char)))
           (replace real-result result :end1 result-index)
