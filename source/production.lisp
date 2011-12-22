@@ -152,7 +152,7 @@
            ;; KLUDGE this is fragile, and the whole thing is much more complicated...
            (process-http-server-port-command-line-argument (arguments server)
              (when-bind http-server-port (getf arguments :http-server-port)
-               (setf (port-of (find hu.dwim.web-server::+default-http-server-port+ (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)) http-server-port))))
+               (setf (hu.dwim.uri:port-of (find hu.dwim.web-server::+default-http-server-port+ (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)) http-server-port))))
     (console "~A: Starting up server, PID is ~S" (local-time:now) (isys:getpid))
     (process-http-server-port-command-line-argument command-line-arguments hdws-server)
     (hu.dwim.logger:setup-logging-for-production (string+ "/var/log/" (string-downcase project-system-name) "/"))
