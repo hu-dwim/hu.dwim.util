@@ -138,8 +138,8 @@
                      (declare (ignore hook))
                      (disabled-debugger-hook condition logger)))
               (sb-ext:disable-debugger) ; so that we unconditionally disable LDB
-              (sb-alien:with-alien ((lose? sb-alien:boolean :extern "lose_on_corruption_p"))
-                (setf lose? t))
+              ;; KLUDGE this is fragile
+              (setf (sb-alien:extern-alien "lose_on_corruption_p" sb-alien:int) 1)
               (setf sb-ext:*invoke-debugger-hook* #'call-disabled-debugger-hook)
               (setf *debugger-hook* #'call-disabled-debugger-hook)))
      (t #.(warn "~S is not fully implemented for your implementation which may lead to undesired consequences" 'disable-debugger)))
