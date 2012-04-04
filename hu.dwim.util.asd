@@ -21,6 +21,7 @@
                              (:file "iterate" :depends-on ("package"))
                              (:file "number" :depends-on ("package"))
                              (:file "package")
+                             (:file "pattern-matcher" :depends-on ("package"))
                              (:file "place" :depends-on ("package"))
                              (:file "sequence" :depends-on ("package"))
                              (:file "string" :depends-on ("miscellaneous"))
