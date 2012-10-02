@@ -29,4 +29,4 @@
   (check-type symbol (and symbol (not (member nil t))))
   #*((:sbcl (setf (sb-ext:symbol-global-value symbol) value))
      (t #.(warn "~S is not implemented properly on your platform! This may lead to broken runtime behavior..." '(setf symbol-global-value))
-        (setf (symbol-value symbol) vlue))))
+        (setf (symbol-value symbol) value))))
