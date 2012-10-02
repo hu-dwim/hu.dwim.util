@@ -49,6 +49,7 @@
 ;;;;;;
 ;;; Nested conditions
 
+;; TODO rename... chainable-condition? an orthogonal way for instantiation so that the signature of the original condition constructors can stay the same
 (def (condition* e) nested-condition (condition)
   ((nested-condition nil)))
 

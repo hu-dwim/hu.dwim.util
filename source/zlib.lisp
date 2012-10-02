@@ -48,6 +48,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (def special-variable *zlib-search-paths*
+    ;; TODO i think it's not nice for security to put ./ on the front...
     `(,(directory-namestring (or *load-truename* (truename "./")))
        #+lispworks
        ,(directory-namestring (lw:lisp-image-name))

@@ -23,6 +23,7 @@
            "/"))
 
 (def (function e) directory-for-temporary-files ()
+  "Ensure that a temporary directory exists and return it. This directory will be unique for each Lisp VM (e.g. contains the process PID)."
   (or *directory-for-temporary-files*
       (bind ((dir (directory-name-for-temporary-files)))
         (ensure-directories-exist dir) ; TODO use something from iolib.os ?
@@ -105,6 +106,7 @@
     (until file)
     (finally (return (values file file-name)))))
 
+;; TODO what about the file name? it may be needed...
 (def (with-macro* e :macro-only-arguments variable-name) with-temporary-file (variable-name &rest args)
   (bind ((stream (apply 'open-temporary-file args)))
     (unwind-protect
