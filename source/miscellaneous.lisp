@@ -123,7 +123,8 @@
 
 (def (macro e) with-muffled-warnings ((&rest types) &body body)
   `(locally
-       (declare #*((:sbcl (sb-ext:muffle-conditions ,@types))))
+       #*((:sbcl (declare (sb-ext:muffle-conditions ,@types)))
+          (t (declare)))
      (handler-bind
          (((or ,@types) #'muffle-warning))
        ,@body)))
