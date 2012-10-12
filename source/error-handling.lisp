@@ -69,7 +69,18 @@
                  (with-thread-activity-description ("HANDLE-LEVEL-1-ERROR")
                    (bind ((reason nil))
                      (cond
-                       ((typep error 'storage-condition)
+                       ((and (typep error 'storage-condition)
+                             ;; KLUDGE messing around with sbcl internals, but it should be safe this way
+                             #*(((find-symbol* "*HEAP-EXHAUSTED-ERROR-AVAILABLE-BYTES*" :packages "SB-KERNEL" :otherwise #f)
+                                 (or (not (boundp 'sb-kernel::*heap-exhausted-error-available-bytes*))
+                                     (< sb-kernel::*heap-exhausted-error-available-bytes*
+                                        ;; an arbitrary 256k limit to deal with the bigger allocation requests through the normal error handling
+                                        (* 256 1024))))
+                                (:sbcl
+                                 #.(warn "SB-KERNEL::*HEAP-EXHAUSTED-ERROR-AVAILABLE-BYTES* is not available in your SBCL (anymore?). It's safe to ignore this warning.")
+                                 t)
+                                (t
+                                 t)))
                         ;; on SBCL it includes control stack exhaustion, too
                         (setf reason "Error is a STORAGE-CONDITION")
                         (apply out-of-storage-callback error args))
