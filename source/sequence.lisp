@@ -209,7 +209,7 @@ stopped."
                ((consp el)
                 (recurse el))))))
       (recurse sequence)
-      nil)))
+      (values))))
 
 (def (function e) substitute/tree (new old list &key from-end (test #'eql) (test-not nil) (end nil) (count nil) (key nil) (start 0))
   "Starting from LIST non-destructively replaces OLD with NEW."

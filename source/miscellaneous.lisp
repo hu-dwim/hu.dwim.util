@@ -81,7 +81,7 @@
         (-body-))))
 
 (def (function e) if-symbol-exists (package name)
-  "Can be used to conditionalize at read-time like this: #+#.(hu.dwim.asdf::if-symbol-exists \"PKG\" \"FOO\")(pkg::foo ...)"
+  "Can be used to conditionalize at read-time like this: #+#.(hu.dwim.util:if-symbol-exists \"PKG\" \"FOO\")(pkg::foo ...)"
   (if (and (find-package (string package))
            (find-symbol (string name) (string package)))
       '(:and)
