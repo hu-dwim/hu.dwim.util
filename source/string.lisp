@@ -6,6 +6,18 @@
 
 (in-package :hu.dwim.util)
 
+;; TODO not used. delme?
+(def (macro e) with-string-type-dispatch ((variable &optional (types '#.(if (subtypep 'string 'base-string)
+                                                                            '(simple-string string)
+                                                                            '(simple-base-string simple-string string))))
+                                           &body body)
+  `(etypecase ,variable
+     ;; ((vectory nil) ...)? for zero lenght strings... (typep (make-array 0 :element-type nil) 'string) => t
+     ,@(loop
+         :for type :in types
+         :collect `(,type (symbol-macrolet ((-type- ',type))
+                            ,@body)))))
+
 (def (function eo) sanitize-string (string lower-limit upper-limit &key (replacement #\?))
   "By default sanitize for the printable ASCII range. Limits are inclusive."
   (check-type string string)
