@@ -266,3 +266,45 @@
     (if (zerop max-distance)
         0
         (/ distance max-distance))))
+
+;;;;;;
+;;; Reified string dispatch to provide an API for advanced optimizations
+
+;; http://www.pvk.ca/Blog/Lisp/string_case_bis.html
+;; http://discontinuity.info/~pkhuong/
+;; http://discontinuity.info/~pkhuong/string-case.lisp
+#+(:or) ;; this is half baked...
+((def (special-variable e) *string-dispatcher/target*)
+ (def (special-variable e) *string-dispatcher/matching*)
+ (def (special-variable e) *string-dispatcher/remaining*)
+
+ (export 'make-string-dispatcher) ; TODO extend struct definer to export the maker...
+
+ (def (structure e) (string-dispatcher (:conc-name string-dispatcher/))
+     (mappings '())
+   ;; TODO mode should be an option of each entry
+   (mode :prefix :type (member :prefix :postfix :exact)))
+
+ (def (function e) string-dispatcher/add-entry (dispatcher string-prefix handler)
+   (setf (assoc-value (string-dispatcher/mappings dispatcher) string-prefix) (list handler))
+   (setf (string-dispatcher/mappings dispatcher) (stable-sort (string-dispatcher/mappings dispatcher) #'< :key (compose 'length 'first)))
+   dispatcher)
+
+ (def (function e) string-dispatcher/remove-entry (dispatcher string-prefix)
+   (setf (string-dispatcher/mappings dispatcher) (remove string-prefix (string-dispatcher/mappings dispatcher) :test #'string= :key #'first))
+   dispatcher)
+
+ (def (function e) string-dispatcher/dispatch (dispatcher target &key (otherwise :error otherwise?))
+   (dolist (entry (string-dispatcher/mappings dispatcher) (handle-otherwise (error "STRING-DISPATCHER/DISPATCH failed for dispatcher ~A and target ~S" dispatcher target)))
+     (bind (((matching handler) entry)
+            ((:values matches? remaining) (ecase (string-dispatcher/mode dispatcher)
+                                            (:prefix (starts-with-subseq matching target :return-suffix #t))
+                                            (:postfix (bind ((matches? (ends-with-subseq matching target)))
+                                                        (when matches?
+                                                          (values matches? (subseq target 0 (- (length target) (length matching)))))))
+                                            (:exact (string= matching target)))))
+       (when matches?
+         (return (bind ((*string-dispatcher/target* target)
+                        (*string-dispatcher/matching* matching)
+                        (*string-dispatcher/remaining* remaining))
+                   (funcall handler))))))))
