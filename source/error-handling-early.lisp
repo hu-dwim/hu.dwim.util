@@ -29,8 +29,8 @@
         (finish-output *error-output*)))))
 
 (def (function ed) maybe-invoke-debugger (condition &key context)
+  (declare (ignore context))
   (when (debug-on-error? context condition)
-    (declare (ignore context))
     (when (fboundp 'invoke-slime-debugger)
       (restart-case
           (funcall 'invoke-slime-debugger condition)
