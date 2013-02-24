@@ -4,12 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(load-system :hu.dwim.asdf)
-
-(in-package :hu.dwim.asdf)
-
 (defsystem :hu.dwim.util.soap
-  :class hu.dwim.system
+  :defsystem-depends-on (hu.dwim.asdf)
+  :class hu.dwim.asdf:hu.dwim.system
   :description "SOAP messages over HTTP."
   :depends-on (:babel
                :babel-streams

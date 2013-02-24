@@ -4,12 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(load-system :hu.dwim.asdf)
-
-(in-package :hu.dwim.asdf)
-
 (defsystem :hu.dwim.util.standard-process
-  :class hu.dwim.system
+  :defsystem-depends-on (hu.dwim.asdf)
+  :class hu.dwim.asdf:hu.dwim.system
   :description "Provides a worker group abstraction to do a bunch of shared tasks."
   :depends-on (:hu.dwim.delico
                :hu.dwim.defclass-star+hu.dwim.def

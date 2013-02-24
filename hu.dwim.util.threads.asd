@@ -4,12 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(load-system :hu.dwim.asdf)
-
-(in-package :hu.dwim.asdf)
-
 (defsystem :hu.dwim.util.threads
-  :class hu.dwim.system
+  :defsystem-depends-on (hu.dwim.asdf)
+  :class hu.dwim.asdf:hu.dwim.system
   :description "Various utilities used by the dwim.hu team. Threading related utilities for a bit more dependency."
   :depends-on (:bordeaux-threads
                :hu.dwim.def.namespace

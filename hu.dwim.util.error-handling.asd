@@ -4,12 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(load-system :hu.dwim.asdf)
-
-(in-package :hu.dwim.asdf)
-
 (defsystem :hu.dwim.util.error-handling
-  :class hu.dwim.system
+  :defsystem-depends-on (hu.dwim.asdf)
+  :class hu.dwim.asdf:hu.dwim.system
   :description "Various utilities, contains code for complex error handling."
   :depends-on (:hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.logger

@@ -4,12 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(load-system :hu.dwim.asdf)
-
-(in-package :hu.dwim.asdf)
-
 (defsystem :hu.dwim.util.production
-  :class hu.dwim.system
+  :defsystem-depends-on (hu.dwim.asdf)
+  :class hu.dwim.asdf:hu.dwim.system
   :description "Various utilities, contains code for producing standalone executable services."
   :depends-on (:cl-fad
                :command-line-arguments
