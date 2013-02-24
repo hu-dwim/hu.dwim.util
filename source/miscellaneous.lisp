@@ -31,6 +31,7 @@
 (def (function e) quit (status-code)
   ;; (log.info "Quiting production image with status-code ~A" status-code)
   #*((:sbcl (sb-ext:exit :abort #t :code status-code))
+     (:ccl (ccl:quit status-code))
      (t #.(warn "~S is not implemented on your platform" 'quit)
         (not-yet-implemented))))
 
