@@ -11,6 +11,7 @@
 
 (def (generic e) debug-on-error? (context error)
   (:method (context error)
+    (declare (ignore context error))
     *debug-on-error*))
 
 (def (function ed) print-error-safely (&optional message &rest args)
@@ -29,6 +30,7 @@
 
 (def (function ed) maybe-invoke-debugger (condition &key context)
   (when (debug-on-error? context condition)
+    (declare (ignore context))
     (when (fboundp 'invoke-slime-debugger)
       (restart-case
           (funcall 'invoke-slime-debugger condition)
