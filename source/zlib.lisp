@@ -106,7 +106,7 @@
 (cffi:defcfun (%zlib-version "zlibVersion" :library zlib) :pointer)
 
 (cffi:defcfun (%deflate-init-2 "deflateInit2_" :library zlib) :int
-  (stream (:pointer z-stream))
+  (stream (:pointer (:struct z-stream)))
   (level :int)
   (method :int)
   (window-bits :int)
@@ -116,24 +116,24 @@
   (stream-struct-size :int))
 
 (cffi:defcfun (%deflate "deflate" :library zlib) :int
-  (stream (:pointer z-stream))
+  (stream (:pointer (:struct z-stream)))
   (flush :int))
 
 (cffi:defcfun (%deflate-end "deflateEnd" :library zlib) :int
-  (stream (:pointer z-stream)))
+  (stream (:pointer (:struct z-stream))))
 
 (cffi:defcfun (%inflate-init-2 "inflateInit2_" :library zlib) :int
-  (stream (:pointer z-stream))
+  (stream (:pointer (:struct z-stream)))
   (window-bits :int)
   (version (:pointer :char))
   (stream-struct-size :int))
 
 (cffi:defcfun (%inflate "inflate" :library zlib) :int
-  (stream (:pointer z-stream))
+  (stream (:pointer (:struct z-stream)))
   (flush :int))
 
 (cffi:defcfun (%inflate-end "inflateEnd" :library zlib) :int
-  (stream (:pointer z-stream)))
+  (stream (:pointer (:struct z-stream))))
 
 ;; this would be 64 bit only
 ;;(assert (= (cffi:foreign-type-size 'z-stream) 112) () "Hm, something's wrong with the length of the z-stream CFFI struct?!")
@@ -198,17 +198,17 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
 
 (def function make-deflate-z-stream (&key (level +z-default-compression+) (method +z-deflated+)
                                           (window-bits +max-window-bits+) (memory-level 8) (strategy +z-default-strategy+))
-  (let ((stream (cffi:foreign-alloc 'z-stream))
+  (let ((stream (cffi:foreign-alloc '(:struct z-stream)))
         (ok nil))
     (unwind-protect
          (progn
-           (setf (cffi:foreign-slot-value stream 'z-stream 'zalloc) (cffi:null-pointer))
-           (setf (cffi:foreign-slot-value stream 'z-stream 'zfree)  (cffi:null-pointer))
-           (setf (cffi:foreign-slot-value stream 'z-stream 'opaque) (cffi:null-pointer))
-           (setf (cffi:foreign-slot-value stream 'z-stream 'avail-in) 0)
-           (setf (cffi:foreign-slot-value stream 'z-stream 'avail-out) 0)
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'zalloc) (cffi:null-pointer))
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'zfree)  (cffi:null-pointer))
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'opaque) (cffi:null-pointer))
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-in) 0)
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-out) 0)
            (zlib-call (%deflate-init-2 stream level method window-bits memory-level strategy
-                                       (%zlib-version) (cffi:foreign-type-size 'z-stream)))
+                                       (%zlib-version) (cffi:foreign-type-size '(:struct z-stream))))
            (setf ok t)
            stream)
       (unless ok
@@ -248,17 +248,17 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
                    args))))
 
 (def function make-inflate-z-stream (&key (window-bits +max-window-bits+))
-  (let ((stream (cffi:foreign-alloc 'z-stream))
+  (let ((stream (cffi:foreign-alloc '(:struct z-stream)))
         (ok nil))
     (unwind-protect
          (progn
-           (setf (cffi:foreign-slot-value stream 'z-stream 'zalloc) (cffi:null-pointer))
-           (setf (cffi:foreign-slot-value stream 'z-stream 'zfree)  (cffi:null-pointer))
-           (setf (cffi:foreign-slot-value stream 'z-stream 'opaque) (cffi:null-pointer))
-           (setf (cffi:foreign-slot-value stream 'z-stream 'avail-in) 0)
-           (setf (cffi:foreign-slot-value stream 'z-stream 'avail-out) 0)
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'zalloc) (cffi:null-pointer))
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'zfree)  (cffi:null-pointer))
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'opaque) (cffi:null-pointer))
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-in) 0)
+           (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-out) 0)
            (zlib-call (%inflate-init-2 stream window-bits
-                                       (%zlib-version) (cffi:foreign-type-size 'z-stream)))
+                                       (%zlib-version) (cffi:foreign-type-size '(:struct z-stream))))
            (setf ok t)
            stream)
       (unless ok
@@ -298,14 +298,14 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
            (cffi:with-pointer-to-vector-data (input-buffer lisp-input-buffer)
              (cffi:with-pointer-to-vector-data (output-buffer lisp-output-buffer)
                (labels ((update-input-if-needed ()
-                          (let ((avail-in (cffi:foreign-slot-value stream 'z-stream 'avail-in)))
+                          (let ((avail-in (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-in)))
                             (if (zerop avail-in)
                                 (let ((new-input-bytes (funcall input-fn lisp-input-buffer 0 input-buffer-size)))
                                   (if (and new-input-bytes
                                            (plusp new-input-bytes))
                                       (progn
-                                        (setf (cffi:foreign-slot-value stream 'z-stream 'next-in) input-buffer)
-                                        (setf (cffi:foreign-slot-value stream 'z-stream 'avail-in) new-input-bytes)
+                                        (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'next-in) input-buffer)
+                                        (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-in) new-input-bytes)
                                         (debug "got ~A input bytes" new-input-bytes)
                                         (= new-input-bytes input-buffer-size))
                                       nil))
@@ -314,10 +314,10 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
                                   t))))
                         (reset-output-buffer ()
                           (debug "resetting output buffer")
-                          (setf (cffi:foreign-slot-value stream 'z-stream 'next-out) output-buffer)
-                          (setf (cffi:foreign-slot-value stream 'z-stream 'avail-out) output-buffer-size))
+                          (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'next-out) output-buffer)
+                          (setf (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-out) output-buffer-size))
                         (update-output ()
-                          (let* ((avail-out (cffi:foreign-slot-value stream 'z-stream 'avail-out))
+                          (let* ((avail-out (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-out))
                                  (bytes (- output-buffer-size avail-out)))
                             (debug "outputting ~A bytes while avail-out is ~A and output-buffer-size is ~A" bytes avail-out output-buffer-size)
                             (unless (zerop bytes)
@@ -336,12 +336,12 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
                                            +z-finish+)))
                             (loop :named inner :do
                                (progn
-                                 (debug "entering inner loop with flush: ~A, avail-in: ~A, avail-out: ~A" flush (cffi:foreign-slot-value stream 'z-stream 'avail-in) (cffi:foreign-slot-value stream 'z-stream 'avail-out))
+                                 (debug "entering inner loop with flush: ~A, avail-in: ~A, avail-out: ~A" flush (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-in) (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-out))
                                  (ecase operation
                                    (:deflate (zlib-call (%deflate stream flush)))
                                    (:inflate (zlib-call (%inflate stream flush))))
-                                 (debug "avail-in is ~A, avail-out is ~A" (cffi:foreign-slot-value stream 'z-stream 'avail-in) (cffi:foreign-slot-value stream 'z-stream 'avail-out))
-                                 (let ((output-buffer-full? (zerop (cffi:foreign-slot-value stream 'z-stream 'avail-out))))
+                                 (debug "avail-in is ~A, avail-out is ~A" (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-in) (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-out))
+                                 (let ((output-buffer-full? (zerop (cffi:foreign-slot-value stream '(:struct z-stream) 'avail-out))))
                                    (debug "output-buffer-full? ~A" output-buffer-full?)
                                    (update-output)
                                    (unless output-buffer-full?
