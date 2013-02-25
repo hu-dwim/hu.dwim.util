@@ -6,6 +6,8 @@
 
 (in-package :hu.dwim.util)
 
+;; TODO instead of this consider using https://github.com/m2ym/optima
+
 ;;;;;;
 ;;; Binding environment
 
