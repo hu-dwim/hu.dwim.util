@@ -123,15 +123,22 @@
   (/ (get-internal-real-time) internal-time-units-per-second))
 
 (def (macro e) with-muffled-warnings ((&rest types) &body body)
-  `(locally
-       #*((:sbcl (declare (sb-ext:muffle-conditions ,@types)))
-          (t (declare)))
-     (handler-bind
-         (((or ,@types) #'muffle-warning))
-       ,@body)))
+  (if types
+      `(locally
+           #*((:sbcl (declare (sb-ext:muffle-conditions ,@types)))
+              (t (declare)))
+           (handler-bind
+               (((or ,@types) #'muffle-warning))
+             ,@body))
+      `(progn
+         ,@body)))
 
 (def (macro e) with-muffled-redefinition-warnings (&body body)
   `(with-muffled-warnings (#*((:sbcl sb-kernel:redefinition-warning)))
+     ,@body))
+
+(def (macro e) with-muffled-boring-compiler-warnings (&body body)
+  `(with-muffled-warnings (#*((:sbcl style-warning sb-ext:compiler-note)))
      ,@body))
 
 ;;;;;;
