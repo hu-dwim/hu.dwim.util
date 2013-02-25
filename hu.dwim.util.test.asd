@@ -5,7 +5,7 @@
 ;;; See LICENCE for details.
 
 (defsystem :hu.dwim.util.test
-  :defsystem-depends-on (hu.dwim.asdf)
+  :defsystem-depends-on (:hu.dwim.asdf)
   :class hu.dwim.asdf:hu.dwim.test-system
   :depends-on (:hu.dwim.stefil+hu.dwim.def+swank
                :hu.dwim.util

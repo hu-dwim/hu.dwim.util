@@ -5,7 +5,7 @@
 ;;; See LICENCE for details.
 
 (defsystem :hu.dwim.util.temporary-files
-  :defsystem-depends-on (hu.dwim.asdf)
+  :defsystem-depends-on (:hu.dwim.asdf)
   :class hu.dwim.asdf:hu.dwim.system
   :description ""
   :depends-on (:hu.dwim.util+iolib

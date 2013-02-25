@@ -5,7 +5,7 @@
 ;;; See LICENCE for details.
 
 (defsystem :hu.dwim.util.i18n
-  :defsystem-depends-on (hu.dwim.asdf)
+  :defsystem-depends-on (:hu.dwim.asdf)
   :class hu.dwim.asdf:hu.dwim.system
   :depends-on (:hu.dwim.util
                :cl-l10n)
