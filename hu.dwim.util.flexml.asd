@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.flexml
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "A CXML document model that can parse into CLOS nodes"
   :depends-on (:cl-ppcre
                :cxml

@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.authorization
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "Authorization for lisp forms."
   :depends-on (:hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.logger

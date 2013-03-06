@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.finite-state-machine
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description ""
   :depends-on (:hu.dwim.def.namespace
                :hu.dwim.defclass-star+hu.dwim.def

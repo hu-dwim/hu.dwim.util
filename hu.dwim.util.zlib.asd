@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.zlib
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "Bindings and lisp API for zlib."
   :depends-on (:cffi
                :hu.dwim.defclass-star+hu.dwim.def

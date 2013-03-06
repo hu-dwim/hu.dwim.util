@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "Various utilities, this is the most basic system that only introduce a small number of external dependencies."
   :depends-on (:hu.dwim.def+hu.dwim.common
                :hu.dwim.defclass-star+hu.dwim.def

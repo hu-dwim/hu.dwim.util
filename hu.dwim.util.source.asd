@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.source
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "Provides a source forms for definitions."
   :depends-on (:hu.dwim.def+hu.dwim.common
                :hu.dwim.syntax-sugar

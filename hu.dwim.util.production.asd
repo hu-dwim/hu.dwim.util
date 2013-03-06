@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.production
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "Various utilities, contains code for producing standalone executable services."
   :depends-on (:cl-fad
                :command-line-arguments

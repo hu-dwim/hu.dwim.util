@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.linear-mapping
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description ""
   :depends-on (:bordeaux-threads
                :hu.dwim.util)

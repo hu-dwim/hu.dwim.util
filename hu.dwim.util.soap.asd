@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.soap
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "SOAP messages over HTTP."
   :depends-on (:babel
                :babel-streams

@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.mop
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :depends-on (:hu.dwim.util
                :closer-mop)
   :components ((:module "source"

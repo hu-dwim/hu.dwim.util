@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.util.error-handling
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "Various utilities, contains code for complex error handling."
   :depends-on (:hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.logger
