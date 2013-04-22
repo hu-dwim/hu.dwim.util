@@ -29,13 +29,10 @@
                                       "<error printing value>")))
               (format stream "~%---- ~S: ~A" var printed-value))))))))
 
-#+#.(hu.dwim.util:if-symbol-exists "SB-DEBUG" "*VERBOSITY*")
-(def function collect-backtrace/impl (&key (start 0) count
-                                           ((:verbosity sb-debug::*verbosity*) sb-debug::*verbosity*)
-                                           (print-frame-source (> sb-debug::*verbosity* 1))
-                                           &allow-other-keys)
+#+#.(hu.dwim.util:if-symbol-exists "SB-DEBUG" "*METHOD-FRAME-STYLE*")
+(def function collect-backtrace/impl (&key (start 0) count print-frame-source &allow-other-keys)
   (unless count
-    (setf count sb-debug::*default-backtrace-size-limit*))
+    (setf count sb-debug::*backtrace-frame-count*))
   (setf start (+ start 10))
   (bind ((backtrace ())
          (*current-backtrace-special-variable-values* (make-hash-table :test 'eq)))
@@ -59,13 +56,10 @@
      :start start :count count)
     (nreverse backtrace)))
 
-#+#.(hu.dwim.util:if-symbol-exists "SB-DEBUG" "*VERBOSITY*")
-(def function collect-call-path/impl (&key (start 0) count
-                                           ((:verbosity sb-debug::*verbosity*) sb-debug::*verbosity*)
-                                           &allow-other-keys)
+#+#.(hu.dwim.util:if-symbol-exists "SB-DEBUG" "*METHOD-FRAME-STYLE*")
+(def function collect-call-path/impl (&key (start 0) count &allow-other-keys)
   (unless count
-    (setf count sb-debug::*default-backtrace-size-limit*))
-  (setf start (+ start 4))
+    (setf count sb-debug::*backtrace-frame-count*))
   (bind ((call-path ()))
     (sb-debug::map-backtrace
      (lambda (frame)
