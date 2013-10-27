@@ -134,11 +134,13 @@
          ,@body)))
 
 (def (macro e) with-muffled-redefinition-warnings (&body body)
-  `(with-muffled-warnings (#*((:sbcl sb-kernel:redefinition-warning)))
+  `(with-muffled-warnings #*((:sbcl (sb-kernel:redefinition-warning))
+                             (t ()))
      ,@body))
 
 (def (macro e) with-muffled-boring-compiler-warnings (&body body)
-  `(with-muffled-warnings (#*((:sbcl style-warning sb-ext:compiler-note)))
+  `(with-muffled-warnings #*((:sbcl (style-warning sb-ext:compiler-note))
+                             (t ()))
      ,@body))
 
 ;;;;;;
