@@ -51,18 +51,21 @@ if we strictly followed CLHS, then it should be the following:
 ;; TODO add error on failure or &key otherwise
 (def (function e) find-class-for-type (type)
   (or (gethash type *class-for-types*)
-      (setf (gethash type *class-for-types*)
-            (or (when (symbolp type)
-                  (find-class type nil))
-		#+sbcl ;; TODO THL #+allegro?
-                (first (sort (iter (for (key value) :in-hashtable sb-kernel::*classoid-cells*)
-                                   (for class = (find-class key #f))
-                                   (when (and class
-                                              (not (typep class 'built-in-class))
-                                              (subtypep class type))
-                                     (collect class)))
-                             (lambda (class-1 class-2)
-                               (subtypep class-2 class-1))))))))
+      (awhen (or (when (symbolp type)
+                   (find-class type nil))
+                 ;; TODO THL #+allegro?
+                 ;; TODO FIXME this has been obsoleted by a change in the sbcl internals:
+                 ;; https://github.com/sbcl/sbcl/commit/66d35ed03a2360fbcb776b66d3d55bd2bf72cb1a
+                 #+nil
+                 (first (sort (iter (for (key value) :in-hashtable sb-kernel::*classoid-cells*)
+                                    (for class = (find-class key #f))
+                                    (when (and class
+                                               (not (typep class 'built-in-class))
+                                               (subtypep class type))
+                                      (collect class)))
+                              (lambda (class-1 class-2)
+                                (subtypep class-2 class-1)))))
+        (setf (gethash type *class-for-types*) it))))
 
 (def (function e) type-instance-count-upper-bound (input-type)
   (flet ((body (type)
