@@ -73,7 +73,7 @@
            `(progn ,@body)))))
 
 (def (with-macro* e) with-profiling ()
-  #*((:sbcl
+  #*(((and :sbcl (asdf:find-system :sb-sprof #f))
       #.(progn (require :sb-sprof) nil)
       (load-time-value (require :sb-sprof))
       (sb-sprof:with-profiling ()
