@@ -172,6 +172,7 @@ stopped."
 ;;;;;;
 ;;; tree
 
+;; TODO SUBST-IF seems to be almost equivalent to MAP/TREE
 (def (function e) map/tree (visitor sequence &key (key 'identity))
   "Depth-first, returns with (VALUES)."
   (ensure-functionf key)
