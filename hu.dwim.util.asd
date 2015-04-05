@@ -29,8 +29,9 @@
                              (:file "place" :depends-on ("package"))
                              (:file "sequence" :depends-on ("package"))
                              (:file "string" :depends-on ("miscellaneous"))
+                             (:file "string-early" :depends-on ("package"))
                              (:file "threads-early" :depends-on ("package"))
                              (:file "type" :depends-on ("package"))
-                             (:file "miscellaneous" :depends-on ("package"))))
+                             (:file "miscellaneous" :depends-on ("package" "string-early"))))
                 (:module "integration"
                  :components (#+(and sbcl (not windows)) (:file "sbcl")))))

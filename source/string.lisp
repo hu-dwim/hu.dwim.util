@@ -40,6 +40,8 @@
 (def (function eo) sanitize-string/printable-ascii (string &key (replacement #\?))
   (sanitize-string string 32 126 :replacement replacement))
 
+(def (function e) make-adjustable-string (initial-contents)
+  (make-array (length initial-contents) :element-type 'character :initial-contents initial-contents :adjustable #t))
 
 ;;;;;;
 ;;; Symbols
@@ -125,27 +127,6 @@
 (def (function e) write-characters (character count &optional (stream *standard-output*))
   (iter (repeat count)
         (write-char character stream)))
-
-;;;;;;
-;;; String concatenation
-
-(def (function eo) string+ (&rest args)
-  ;; don't inline, otherwise the compiler macro is kicked
-  (apply #'concatenate 'string args))
-
-(def compiler-macro string+ (&rest args)
-  `(concatenate 'string ,@args))
-
-(def (function eo) join-strings (strings &optional separator)
-  (with-output-to-string (string)
-    (iter (for el :in-sequence strings)
-          (when (and separator
-                     (not (first-time-p)))
-            (princ separator string))
-          (write-string el string))))
-
-(def (function e) make-adjustable-string (initial-contents)
-  (make-array (length initial-contents) :element-type 'character :initial-contents initial-contents :adjustable #t))
 
 ;;;;;;
 ;;; Roman numeral
