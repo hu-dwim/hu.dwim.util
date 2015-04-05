@@ -10,7 +10,11 @@
   :description "Various utilities, this is the most basic system that only introduce a small number of external dependencies."
   :depends-on (:hu.dwim.def+hu.dwim.common
                :hu.dwim.defclass-star+hu.dwim.def
-               :hu.dwim.syntax-sugar)
+               :hu.dwim.syntax-sugar
+               ;; TODO at the time of writing the sb-sprof contrib is broken on windows.
+               ;; see https://bugs.launchpad.net/sbcl/+bug/1274943
+               ;; see also below
+               #+(and sbcl (not windows)) :sb-sprof)
   :components ((:module "source"
                 :components ((:file "anaphora" :depends-on ("package"))
                              (:file "dynamic-context" :depends-on ("miscellaneous"))
@@ -27,4 +31,6 @@
                              (:file "string" :depends-on ("miscellaneous"))
                              (:file "threads-early" :depends-on ("package"))
                              (:file "type" :depends-on ("package"))
-                             (:file "miscellaneous" :depends-on ("package"))))))
+                             (:file "miscellaneous" :depends-on ("package"))))
+                (:module "integration"
+                 :components (#+(and sbcl (not windows)) (:file "sbcl")))))

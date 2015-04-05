@@ -73,13 +73,7 @@
            `(progn ,@body)))))
 
 (def (with-macro* e) with-profiling ()
-  #*(((and :sbcl (asdf:find-system :sb-sprof #f))
-      #.(progn (require :sb-sprof) nil)
-      (load-time-value (require :sb-sprof))
-      (sb-sprof:with-profiling ()
-        (-body-)))
-     (t #.(warn "~S is not implemented for your platform, no profiling information will be available." 'with-profiling)
-        (-body-))))
+  (-body-))
 
 (def (function e) if-symbol-exists (package name)
   "Can be used to conditionalize at read-time like this: #+#.(hu.dwim.util:if-symbol-exists \"PKG\" \"FOO\")(pkg::foo ...)"
