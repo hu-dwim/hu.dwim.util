@@ -6,6 +6,8 @@
 
 (in-package :hu.dwim.util)
 
+;;; Status: for now it's SBCL only.
+
 ;;;;;;
 ;;; Definition source text database
 
@@ -48,7 +50,7 @@
                   (t (with-input-from-file (stream pathname :element-type 'character :external-format (sb-impl::default-external-format))
                        (with-find-package-kludge
                          (bind ((first-form-index (car form-path))
-                                (*readtable* (swank-backend::shebang-readtable))
+                                (*readtable* (swank/sbcl::shebang-readtable))
                                 (*package* (find-package :common-lisp-user)))
                            (iter (for index :from 0)
                                  (for form = (handler-bind ((sb-int::simple-reader-package-error #'continue))
@@ -96,7 +98,7 @@
     (with-input-from-string (stream it)
       (with-find-package-kludge
         (bind ((*package* (car (gethash definition *definition-source-texts*)))
-               (*readtable* (copy-readtable (swank-backend::shebang-readtable))))
+               (*readtable* (copy-readtable (swank/sbcl::shebang-readtable))))
           (awhen (find-extended-package (package-name *package*) :otherwise #f)
             (eval (hu.dwim.def::readtable-setup-form-of it)))
           (read stream nil nil))))))
