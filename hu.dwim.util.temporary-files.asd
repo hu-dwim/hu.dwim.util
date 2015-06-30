@@ -9,8 +9,8 @@
   :class "hu.dwim.asdf:hu.dwim.system"
   :description ""
   :depends-on (:hu.dwim.util+iolib
-               :iolib.pathnames
-               :iolib.os
-               :iolib.syscalls)
+               :iolib/pathnames
+               :iolib/os
+               :iolib/syscalls)
   :components ((:module "source"
                 :components ((:file "temporary-files")))))

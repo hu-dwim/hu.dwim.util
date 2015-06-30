@@ -16,7 +16,7 @@
                :hu.dwim.util.temporary-files
                :hu.dwim.util+iolib
                :hu.dwim.web-server.application ; TODO drop dependency
-               :iolib.syscalls)
+               :iolib/syscalls)
   :components ((:module "source"
                 :components ((:file "production")
                              (:file "command-line")))))
