@@ -38,5 +38,6 @@
 (def function partial-eval-authorization (form &rest args &key &allow-other-keys)
   (apply #'hu.dwim.partial-eval:partial-eval form
          :layer 'authorization-layer
-         :inline-functions '(sb-kernel::keyword-supplied-p sb-kernel::lookup-keyword)
+         ;; TODO using internals breaks over time... commented out due to changes in SBCL.
+         ;; :inline-functions '(sb-kernel::keyword-supplied-p sb-kernel::lookup-keyword)
          args))
