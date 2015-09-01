@@ -230,7 +230,7 @@ stopped."
           new
           list)))
 
-(def (function eio) shrink-vector (vector size)
+(def (function eio) shrink-vector (vector &optional (size (length vector)))
   "Fast shrinking for simple vectors. It's not thread-safe, use only on local vectors!"
   #*((:sbcl      (sb-kernel:%shrink-vector vector size))
      (:allegro   (excl::.primcall 'sys::shrink-svector vector size))
