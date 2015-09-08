@@ -128,7 +128,7 @@
 
 (def hu.dwim.logger:logger production ())
 
-(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key (database 'perec-on-postgresql))
+(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key (log-directory "/var/log") (default-http-port hu.dwim.web-server::+default-http-server-port+) (swank-bind-address "127.0.0.1") (database 'perec-on-postgresql))
   (labels ((console (format &rest args)
              (apply 'hu.dwim.logger:log-to-console format args))
            (ready-to-quit? (hdws-server)
@@ -138,10 +138,11 @@
            ;; KLUDGE this is fragile, and the whole thing is much more complicated...
            (process-http-server-port-command-line-argument (arguments server)
              (when-bind http-server-port (getf arguments :http-server-port)
-               (setf (hu.dwim.web-server::port-of (find hu.dwim.web-server::+default-http-server-port+ (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)) http-server-port))))
+               (awhen (find default-http-port (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)
+                 (setf (hu.dwim.web-server::port-of it) http-server-port)))))
     (console "~A: Starting up server, PID is ~S" (local-time:now) (isys:getpid))
     (process-http-server-port-command-line-argument command-line-arguments hdws-server)
-    (hu.dwim.logger:setup-logging-for-production (string+ "/var/log/" (string-downcase project-system-name) "/"))
+    (hu.dwim.logger:setup-logging-for-production (string+ log-directory (string-downcase project-system-name) "/"))
     (production.info "~S speaking, starting up in production mode ~S" 'run-production-server project-system-name)
     (bind ((project-system (asdf:find-system project-system-name))
            (project-package (find-package (system-package-name project-system)))
@@ -166,7 +167,7 @@
                     &allow-other-keys) command-line-arguments)
              (connection-specification `(:host ,database-host :port ,database-port :database ,database-name :user-name ,database-user-name :password ,database-password))
              (loggable-connection-specification (remove-from-plist connection-specification :password)))
-        (start-swank-server swank-port)
+        (start-swank-server swank-port :bind-address swank-bind-address)
         (when (and disable-debugger
                    (or (not repl)
                        disable-debugger-provided?))
