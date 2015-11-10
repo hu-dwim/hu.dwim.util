@@ -54,8 +54,9 @@
 (defsystem :hu.dwim.util/command-line
   :defsystem-depends-on (:hu.dwim.asdf)
   :class "hu.dwim.asdf:hu.dwim.system"
-  :depends-on (:command-line-arguments
-               :hu.dwim.util)
+  :depends-on (:hu.dwim.util
+               :command-line-arguments
+               :uiop)
   :components ((:module "source"
                 :components ((:file "command-line")))))
 
@@ -134,7 +135,6 @@
   :class "hu.dwim.asdf:hu.dwim.system"
   :description "Various utilities, contains code for producing standalone executable services."
   :depends-on (:cl-fad
-               :command-line-arguments
                :hu.dwim.logger
                :hu.dwim.perec.postgresql     ; TODO drop dependency
                :hu.dwim.util/command-line

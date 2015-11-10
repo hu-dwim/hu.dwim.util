@@ -61,19 +61,8 @@
         +version-command-line-option+
         +quiet-command-line-option+))
 
-(def (function e) non-vm-command-line-arguments ()
-  #+sbcl
-  (bind ((arguments (command-line-arguments:get-command-line-arguments))
-         (last-vm-argument (position "--end-toplevel-options" arguments :test 'string=)))
-    (if last-vm-argument
-        (append (first arguments)
-                (subseq arguments (1+ last-vm-argument)))
-        arguments))
-  #-sbcl
-  (command-line-arguments:get-command-line-arguments))
-
 (def (function e) parse-command-line-arguments (options)
-  (command-line-arguments:process-command-line-options options (non-vm-command-line-arguments)))
+  (command-line-arguments:process-command-line-options options (uiop:command-line-arguments)))
 
 (def (function e) copy-command-line-options (options &rest default-values &key &allow-other-keys)
   (mapcar (lambda (option)
