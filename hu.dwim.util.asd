@@ -38,3 +38,199 @@
                              (:file "miscellaneous" :depends-on ("package" "string-early"))))
                 (:module "integration"
                  :components (#+(and sbcl (not windows)) (:file "sbcl")))))
+
+(defsystem :hu.dwim.util/authorization
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Authorization for lisp forms."
+  :depends-on (:hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.logger
+               :hu.dwim.partial-eval
+               :hu.dwim.util
+               :hu.dwim.walker)
+  :components ((:module "source"
+                :components ((:file "authorization")))))
+
+(defsystem :hu.dwim.util/command-line
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :depends-on (:command-line-arguments
+               :hu.dwim.util)
+  :components ((:module "source"
+                :components ((:file "command-line")))))
+
+(defsystem :hu.dwim.util/error-handling
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Various utilities, contains code for complex error handling."
+  :depends-on (:hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.logger
+               :hu.dwim.util)
+  :components ((:module "source"
+                :components ((:file "error-handling")))
+               (:module "integration"
+                :components (#+sbcl (:file "backtrace-sbcl")))))
+
+(defsystem :hu.dwim.util/error-handling+swank
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :depends-on (:hu.dwim.util/error-handling
+               :swank)
+  :components ((:module "integration"
+                :components ((:file "error-handling+swank")))))
+
+(defsystem :hu.dwim.util/finite-state-machine
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description ""
+  :depends-on (:hu.dwim.def.namespace
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.util)
+  :components ((:module "source"
+                :components ((:file "finite-state-machine")))))
+
+(defsystem :hu.dwim.util/flexml
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "A CXML document model that can parse into CLOS nodes"
+  :depends-on (:cl-ppcre
+               :cxml
+               :hu.dwim.def
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.def.namespace
+               :hu.dwim.util)
+  :components ((:module "source"
+                :components ((:file "flexml" :depends-on ("flexml-package"))
+                             (:file "flexml-package")))))
+
+(defsystem :hu.dwim.util/i18n
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :depends-on (:hu.dwim.util
+               :cl-l10n)
+  :components ((:module "source"
+                :components ((:file "i18n")))))
+
+(defsystem :hu.dwim.util/linear-mapping
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description ""
+  :depends-on (:bordeaux-threads
+               :hu.dwim.util)
+  :components ((:module "source"
+                :components ((:file "linear-mapping")))))
+
+(defsystem :hu.dwim.util/mop
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :depends-on (:hu.dwim.util
+               :closer-mop)
+  :components ((:module "source"
+                :components (#+sbcl(:file "compact-class" :depends-on ("mop"))
+                             (:file "mop")))))
+
+(defsystem :hu.dwim.util/production
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Various utilities, contains code for producing standalone executable services."
+  :depends-on (:cl-fad
+               :command-line-arguments
+               :hu.dwim.logger
+               :hu.dwim.perec.postgresql     ; TODO drop dependency
+               :hu.dwim.util/command-line
+               :hu.dwim.util/error-handling
+               :hu.dwim.util/temporary-files
+               :hu.dwim.util+iolib
+               :hu.dwim.web-server.application ; TODO drop dependency
+               :iolib/syscalls)
+  :components ((:module "source"
+                :components ((:file "production")))))
+
+(defsystem :hu.dwim.util/production+swank
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :depends-on (:hu.dwim.util/production
+               :swank)
+  :components ((:module "integration"
+                :components ((:file "production+swank")))))
+
+(defsystem :hu.dwim.util/soap
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "SOAP messages over HTTP."
+  :depends-on (:babel
+               :babel-streams
+               :cxml
+               :drakma
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.logger
+               :hu.dwim.quasi-quote.xml
+               :hu.dwim.util
+               :hu.dwim.util/flexml)
+  :components ((:module "source"
+                :components ((:file "soap")))))
+
+(defsystem :hu.dwim.util/source
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Infrastructure to provide the lisp source forms for named global definitions. SBCL only at this point."
+  :depends-on (:hu.dwim.def+hu.dwim.common
+               :hu.dwim.syntax-sugar
+               :hu.dwim.util
+               :swank)
+  :components ((:module "source"
+                :components ((:file "source")))))
+
+(defsystem :hu.dwim.util/standard-process
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Provides a worker group abstraction to do a bunch of shared tasks."
+  :depends-on (:hu.dwim.delico
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.logger
+               :hu.dwim.util/finite-state-machine)
+  :components ((:module "source"
+                :components ((:file "standard-process")))))
+
+(defsystem :hu.dwim.util/temporary-files
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description ""
+  :depends-on (:hu.dwim.util+iolib
+               :iolib/pathnames
+               :iolib/os
+               :iolib/syscalls)
+  :components ((:module "source"
+                :components ((:file "temporary-files")))))
+
+(defsystem :hu.dwim.util/threads
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Various utilities used by the dwim.hu team. Threading related utilities for a bit more dependency."
+  :depends-on (:bordeaux-threads
+               :hu.dwim.def.namespace
+               :hu.dwim.util)
+  :components ((:module "source"
+                :components ((:file "threads")))))
+
+(defsystem :hu.dwim.util/worker-group
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Provides a worker group abstraction to do a bunch of shared tasks."
+  :depends-on (:bordeaux-threads
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.logger
+               :hu.dwim.util/error-handling)
+  :components ((:module "source"
+                :components ((:file "worker-group")))))
+
+(defsystem :hu.dwim.util/zlib
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :description "Bindings and lisp API for zlib."
+  :depends-on (:cffi
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.logger
+               :hu.dwim.util)
+  :components ((:module "source"
+                :components ((:file "zlib")))))
