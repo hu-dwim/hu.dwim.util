@@ -14,7 +14,7 @@
                :hu.dwim.util/finite-state-machine
                :hu.dwim.util/i18n
                :hu.dwim.util/mop
-               :hu.dwim.util/production+swank
+               :hu.dwim.util/production
                :hu.dwim.util/source
                :hu.dwim.util/standard-process
                :hu.dwim.util/threads

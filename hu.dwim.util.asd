@@ -138,21 +138,13 @@
                :hu.dwim.logger
                :hu.dwim.perec.postgresql     ; TODO drop dependency
                :hu.dwim.util/command-line
-               :hu.dwim.util/error-handling
+               :hu.dwim.util/error-handling+swank
                :hu.dwim.util/temporary-files
                :hu.dwim.util+iolib
                :hu.dwim.web-server.application ; TODO drop dependency
                :iolib/syscalls)
   :components ((:module "source"
                 :components ((:file "production")))))
-
-(defsystem :hu.dwim.util/production+swank
-  :defsystem-depends-on (:hu.dwim.asdf)
-  :class "hu.dwim.asdf:hu.dwim.system"
-  :depends-on (:hu.dwim.util/production
-               :swank)
-  :components ((:module "integration"
-                :components ((:file "production+swank")))))
 
 (defsystem :hu.dwim.util/soap
   :defsystem-depends-on (:hu.dwim.asdf)

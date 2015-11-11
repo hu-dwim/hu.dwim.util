@@ -6,6 +6,19 @@
 
 (in-package :hu.dwim.util)
 
+(def (function e) start-swank-server (port &key (bind-address "127.0.0.1"))
+  (format *debug-io* "Starting Swank server on port ~A...~%" port)
+  (bind (((:values started? error) (ignore-errors
+                                     (with-simple-restart (continue "Ok, go on without a Swank server")
+                                       (let ((swank::*loopback-interface* bind-address))
+                                         (swank:create-server :port port
+                                                              :style :spawn
+                                                              :dont-close #t)))
+                                     #t)))
+    (if started?
+        (format *debug-io* "Swank server has been started~%")
+        (warn "Swank server failed to start due to: ~A" error))))
+
 (def function invoke-slime-debugger (condition &key (otherwise nil))
   (if (or swank::*emacs-connection*
           (swank::default-connection))
