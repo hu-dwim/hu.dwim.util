@@ -130,24 +130,20 @@
           (with-debugger-hook-for-break #'with-layered-error-handlers/debugger-hook
             (-with-macro/body-)))))))
 
-(def (function d) disabled-debugger-hook (condition &optional logger)
+(def (function d) disabled-debugger-hook (condition)
   (bind ((message (or (ignore-errors
                         (build-error-log-message :error-condition condition
                                                  :message "Unhandled error while debugger is disabled, quitting..."))
                       "Err, complete meltdown in DISABLED-DEBUGGER-HOOK. Sorry, no more clues...")))
-    (when message
-      (ignore-errors
-        (write-string message *error-output*)
-        (terpri *error-output*))
-      (when logger
-        (hu.dwim.logger:handle-log-message logger hu.dwim.logger:+fatal+ message nil))))
+    (ignore-errors
+      (write-string message *error-output*)
+      (terpri *error-output*)))
   (quit 42))
 
-(def (function e) disable-debugger (&optional logger)
-  (declare (ignorable logger))
+(def (function e) disable-debugger ()
   #*((:sbcl (flet ((call-disabled-debugger-hook (condition hook)
                      (declare (ignore hook))
-                     (disabled-debugger-hook condition logger)))
+                     (disabled-debugger-hook condition)))
               (sb-ext:disable-debugger) ; so that we unconditionally disable LDB
               ;; KLUDGE this is fragile
               (setf (sb-alien:extern-alien "lose_on_corruption_p" sb-alien:int) 1)
