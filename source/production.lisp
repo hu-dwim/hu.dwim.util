@@ -128,7 +128,11 @@
 
 (def hu.dwim.logger:logger production ())
 
-(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key (log-directory "/var/log") (default-http-port hu.dwim.web-server::+default-http-server-port+) (swank-bind-address "127.0.0.1") (database 'perec-on-postgresql))
+(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key
+                                         (log-directory #P"/var/log/")
+                                         (default-http-port hu.dwim.web-server::+default-http-server-port+)
+                                         (swank-bind-address "127.0.0.1")
+                                         (database 'perec-on-postgresql))
   (labels ((console (format &rest args)
              (apply 'hu.dwim.logger:log-to-console format args))
            (ready-to-quit? (hdws-server)
@@ -142,7 +146,8 @@
                  (setf (hu.dwim.web-server::port-of it) http-server-port)))))
     (console "~A: Starting up server, PID is ~S" (local-time:now) (isys:getpid))
     (process-http-server-port-command-line-argument command-line-arguments hdws-server)
-    (hu.dwim.logger:setup-logging-for-production (string+ log-directory (string-downcase project-system-name) "/"))
+    (hu.dwim.logger:setup-logging-for-production (merge-pathnames (pathname (string+ (string-downcase project-system-name) "/"))
+                                                                  log-directory))
     (production.info "~S speaking, starting up in production mode ~S" 'run-production-server project-system-name)
     (bind ((project-system (asdf:find-system project-system-name))
            (project-package (find-package (system-package-name project-system)))
