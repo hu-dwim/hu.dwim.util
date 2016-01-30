@@ -4,9 +4,6 @@
 ;;;
 ;;; See LICENCE for details.
 
-(unless (or #+asdf3 (uiop:version<= "2.31.1" (asdf-version)))
-  (error "You need ASDF >= 2.31.1 to load this system correctly."))
-
 (defsystem :hu.dwim.util
   :defsystem-depends-on (:hu.dwim.asdf)
   :class "hu.dwim.asdf:hu.dwim.system"
@@ -37,7 +34,7 @@
                              (:file "type" :depends-on ("package"))
                              (:file "miscellaneous" :depends-on ("package" "string-early"))))
                 (:module "integration"
-                 :components (#+(and sbcl (not windows)) (:file "sbcl")))))
+                 :components ((:file "sbcl" :if-feature (:and :sbcl (:not :windows)))))))
 
 (defsystem :hu.dwim.util/authorization
   :defsystem-depends-on (:hu.dwim.asdf)
@@ -69,7 +66,7 @@
   :components ((:module "source"
                 :components ((:file "error-handling")))
                (:module "integration"
-                :components (#+sbcl (:file "backtrace-sbcl")))))
+                :components ((:file "backtrace-sbcl" :if-feature :sbcl)))))
 
 (defsystem :hu.dwim.util/error-handling+swank
   :defsystem-depends-on (:hu.dwim.asdf)
@@ -126,7 +123,7 @@
   :depends-on (:hu.dwim.util
                :closer-mop)
   :components ((:module "source"
-                :components (#+sbcl(:file "compact-class" :depends-on ("mop"))
+                :components ((:file "compact-class" :depends-on ("mop") :if-feature :sbcl)
                              (:file "mop")))))
 
 (defsystem :hu.dwim.util/production
