@@ -98,7 +98,10 @@
     (with-input-from-string (stream it)
       (with-find-package-kludge
         (bind ((*package* (car (gethash definition *definition-source-texts*)))
-               (*readtable* (copy-readtable (swank/sbcl::shebang-readtable))))
+               (*readtable* (copy-readtable #*((:sbcl
+                                                (swank/sbcl::shebang-readtable))
+                                               (t
+                                                *readtable*)))))
           (awhen (find-extended-package (package-name *package*) :otherwise #f)
             (eval (hu.dwim.def::readtable-setup-form-of it)))
           (read stream nil nil))))))
