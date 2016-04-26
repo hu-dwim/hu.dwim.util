@@ -123,8 +123,7 @@
   :depends-on (:hu.dwim.util
                :closer-mop)
   :components ((:module "source"
-                :components ((:file "compact-class" :depends-on ("mop") :if-feature :sbcl)
-                             (:file "mop")))))
+                :components ((:file "mop")))))
 
 (defsystem :hu.dwim.util/production
   :defsystem-depends-on (:hu.dwim.asdf)
