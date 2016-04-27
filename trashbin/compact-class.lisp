@@ -4,6 +4,8 @@
 ;;;
 ;;; See LICENCE for details.
 
+;;; NOTE: this is utterly SBCL specific and it's not loaded by any ASDF systems. it's left here for reference only.
+
 (in-package :hu.dwim.util)
 
 ;;;;;;
