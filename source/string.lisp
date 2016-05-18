@@ -78,7 +78,8 @@
                 (try-in-package package #t)
                 (handle-otherwise (error "Package named ~S does not exist" symbol-name/package))))
           (or (some (lambda (package-name)
-                      (try-in-package (find-package package-name) #f))
+                      (awhen (find-package package-name)
+                        (try-in-package it #f)))
                     packages)
               (handle-otherwise (error "Could not find symbol named ~S in packages ~S" symbol-name packages)))))))
 
