@@ -33,11 +33,6 @@ if we strictly followed CLHS, then it should be the following:
 
 ||#
 
-;; TODO use def namespace if possible to make thread-safety portable
-;; TODO the name CLASS-FOR-TYPE should be more specific. what kind of class?
-;; (def (namespace :test 'equal :finder-name %find-class-for-type) class-for-type)
-(def special-variable *class-for-types* (make-hash-table :test #'equal #+sbcl :synchronized #+sbcl #t)) ;; TODO THL #+allegro?
-
 (def (function e) expand-type (type &optional env)
   (declare (ignorable type env))
   #*((:sbcl (sb-ext:typexpand type env))
@@ -47,29 +42,6 @@ if we strictly followed CLHS, then it should be the following:
   (declare (ignorable type env))
   #*((:sbcl (sb-ext:typexpand-1 type env))
      (t #.(not-yet-implemented/crucial-api 'expand-type))))
-
-;; TODO add error on failure or &key otherwise
-(def (function e) find-class-for-type (type)
-  (or (gethash type *class-for-types*)
-      (awhen (or (when (symbolp type)
-                   (find-class type nil))
-                 ;; at one point this has been obsoleted by a change in the sbcl internals:
-                 ;; https://github.com/sbcl/sbcl/commit/66d35ed03a2360fbcb776b66d3d55bd2bf72cb1a
-                 ;; TODO KLUDGE this is an ugly hack. the proper solution would be to parse and process the type.
-                 #+nil
-                 (first (sort (bind ((classes (list)))
-                                ;; enumerate all the defined classes
-                                (sb-c::call-with-each-globaldb-name
-                                 (lambda (x)
-                                   (bind ((class (find-class x nil)))
-                                     (when (and class
-                                                (not (typep class 'built-in-class))
-                                                (subtypep class type))
-                                       (push class classes)))))
-                                classes)
-                              (lambda (class-1 class-2)
-                                (subtypep class-2 class-1)))))
-        (setf (gethash type *class-for-types*) it))))
 
 (def (function e) type-instance-count-upper-bound (input-type)
   ;; FIXME this is a very good example where a docstring or comment would have helped...
