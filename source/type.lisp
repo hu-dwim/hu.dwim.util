@@ -53,21 +53,26 @@ if we strictly followed CLHS, then it should be the following:
   (or (gethash type *class-for-types*)
       (awhen (or (when (symbolp type)
                    (find-class type nil))
-                 ;; TODO THL #+allegro?
-                 ;; TODO FIXME this has been obsoleted by a change in the sbcl internals:
+                 ;; at one point this has been obsoleted by a change in the sbcl internals:
                  ;; https://github.com/sbcl/sbcl/commit/66d35ed03a2360fbcb776b66d3d55bd2bf72cb1a
+                 ;; TODO KLUDGE this is an ugly hack. the proper solution would be to parse and process the type.
                  #+nil
-                 (first (sort (iter (for (key value) :in-hashtable sb-kernel::*classoid-cells*)
-                                    (for class = (find-class key #f))
-                                    (when (and class
-                                               (not (typep class 'built-in-class))
-                                               (subtypep class type))
-                                      (collect class)))
+                 (first (sort (bind ((classes (list)))
+                                ;; enumerate all the defined classes
+                                (sb-c::call-with-each-globaldb-name
+                                 (lambda (x)
+                                   (bind ((class (find-class x nil)))
+                                     (when (and class
+                                                (not (typep class 'built-in-class))
+                                                (subtypep class type))
+                                       (push class classes)))))
+                                classes)
                               (lambda (class-1 class-2)
                                 (subtypep class-2 class-1)))))
         (setf (gethash type *class-for-types*) it))))
 
 (def (function e) type-instance-count-upper-bound (input-type)
+  ;; FIXME this is a very good example where a docstring or comment would have helped...
   (flet ((body (type)
            (etypecase type
              (symbol
@@ -77,6 +82,7 @@ if we strictly followed CLHS, then it should be the following:
                 (base-char 128)
                 (boolean 2)
                 (single-float (expt 2 32))
+                ;; TODO maybe just (1+ most-positive-fixnum) ?
                 (fixnum #.(expt 2 (integer-length most-positive-fixnum)))))
              (cons
               (case (first type)

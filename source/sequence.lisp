@@ -44,7 +44,7 @@
       (values sequence #f)))
 
 (def (function e) all-the-same? (sequence &key (test 'eql) key)
-  "Returns true if all elements in the LIST are equal using TEST."
+  "Returns true if every element in the LIST are equal to each other using TEST."
   (check-type sequence sequence)
   (ensure-functionf test)
   (iter (with first-element)
