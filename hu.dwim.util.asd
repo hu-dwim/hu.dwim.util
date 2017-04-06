@@ -129,8 +129,7 @@
   :defsystem-depends-on (:hu.dwim.asdf)
   :class "hu.dwim.asdf:hu.dwim.system"
   :description "Various utilities, contains code for producing standalone executable services."
-  :depends-on (:cl-fad
-               :hu.dwim.logger
+  :depends-on (:hu.dwim.logger
                :hu.dwim.perec.postgresql     ; TODO drop dependency
                :hu.dwim.util/command-line
                :hu.dwim.util/error-handling+swank

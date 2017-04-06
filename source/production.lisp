@@ -18,7 +18,7 @@
 (def (function e) load-and-eval-config-file (system-name)
   (bind ((pathname (merge-pathnames (string+ (string-downcase system-name) ".lisp") "config/"))
          (config-file-name (system-relative-pathname system-name pathname)))
-    (if (cl-fad:file-exists-p config-file-name)
+    (if (uiop:file-exists-p config-file-name)
         (with-local-readtable
           (bind ((*package* (find-package :hu.dwim.common)))
             ;; load using the special in-package symbol that sets up the readtable based on what the package says
@@ -31,7 +31,7 @@
   (bind ((pid-file-has-been-created? #f))
     (unwind-protect
          (progn
-           (when (cl-fad:file-exists-p pathname)
+           (when (uiop:file-exists-p pathname)
              (bind ((other-pid (parse-integer (read-file-into-string pathname))))
                (if (posix-process-exists? other-pid)
                    (error "PID file ~S already exists and points to a running process ~S" pathname other-pid)
