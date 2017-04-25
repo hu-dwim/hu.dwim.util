@@ -108,7 +108,11 @@
     (("swank-port" #\Space)
      :type integer
      :initial-value 4005
-     :documentation "The port is used to connect to the running server with SLIME.")
+     :documentation "On which port Swank (SLIME) should listen.")
+    (("swank-address" #\Space)
+     :type string
+     :initial-value "127.0.0.1"
+     :documentation "On what address/interface Swank (SLIME) should listen.")
     (("disable-debugger" #\Space)
      :type boolean
      :optional #t
@@ -131,7 +135,6 @@
 (def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key
                                          (log-directory #P"/var/log/")
                                          (default-http-port hu.dwim.web-server::+default-http-server-port+)
-                                         (swank-bind-address "127.0.0.1")
                                          (database 'perec-on-postgresql))
   (labels ((console (format &rest args)
              (apply 'hu.dwim.logger:log-to-console format args))
@@ -168,11 +171,11 @@
       ;; TODO what about *terminal-io*? maybe: (setf *terminal-io* *standard-output*)
       ;; TODO: factor out the database arguments into rdbms
       (bind (((&key database-host database-port database-name database-user-name database-password
-                    pid-file test-mode swank-port repl verbose (disable-debugger #t disable-debugger-provided?) (export-model #t)
+                    pid-file test-mode swank-port swank-address repl verbose (disable-debugger #t disable-debugger-provided?) (export-model #t)
                     &allow-other-keys) command-line-arguments)
              (connection-specification `(:host ,database-host :port ,database-port :database ,database-name :user-name ,database-user-name :password ,database-password))
              (loggable-connection-specification (remove-from-plist connection-specification :password)))
-        (start-swank-server swank-port :bind-address swank-bind-address)
+        (start-swank-server swank-port :bind-address swank-address)
         (when (and disable-debugger
                    (or (not repl)
                        disable-debugger-provided?))
