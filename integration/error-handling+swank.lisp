@@ -7,7 +7,7 @@
 (in-package :hu.dwim.util)
 
 (def (function e) start-swank-server (port &key (bind-address "127.0.0.1"))
-  (format *debug-io* "Starting Swank server on port ~A...~%" port)
+  (format *debug-io* "Starting Swank server on address ~A, port ~A...~%" bind-address port)
   (bind (((:values started? error) (ignore-errors
                                      (with-simple-restart (continue "Ok, go on without a Swank server")
                                        (let ((swank::*loopback-interface* bind-address))
