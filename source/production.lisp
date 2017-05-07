@@ -107,8 +107,8 @@
      :documentation "The PID file is created when the server starts. The file will be deleted when the server stops.")
     (("swank-port" #\Space)
      :type integer
-     :initial-value 4005
-     :documentation "On which port Swank (SLIME) should listen.")
+     :initial-value 0
+     :documentation "On which port Swank (SLIME) should listen. By default Swank is not started.")
     (("swank-address" #\Space)
      :type string
      :initial-value "127.0.0.1"
@@ -175,7 +175,9 @@
                     &allow-other-keys) command-line-arguments)
              (connection-specification `(:host ,database-host :port ,database-port :database ,database-name :user-name ,database-user-name :password ,database-password))
              (loggable-connection-specification (remove-from-plist connection-specification :password)))
-        (start-swank-server swank-port :bind-address swank-address)
+        (when (and swank-port
+                   (not (zerop swank-port)))
+          (start-swank-server swank-port :bind-address swank-address))
         (when (and disable-debugger
                    (or (not repl)
                        disable-debugger-provided?))
