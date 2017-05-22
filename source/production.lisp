@@ -15,6 +15,7 @@
     (cerror "Ignore" "The default external format is ~S, but UTF-8 is strongly advised! Check your $LANG env variable..."
             (sb-impl::default-external-format))))
 
+#+nil
 (def (function e) load-and-eval-config-file (system-name)
   (bind ((pathname (merge-pathnames (string+ (string-downcase system-name) ".lisp") "config/"))
          (config-file-name (system-relative-pathname system-name pathname)))
@@ -141,35 +142,25 @@
       (warn "Database connection specification is not fully provided, which will most probably lead to an error (password omitted from logs): ~S" loggable-connection-specification))
     (setf (hu.dwim.rdbms::connection-specification-of database) connection-specification)))
 
-(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key
-                                         (log-directory #P"/var/log/")
-                                         (default-http-port hu.dwim.web-server::+default-http-server-port+)
-                                         (database 'perec-on-postgresql))
+(def function process-http-server-port-command-line-argument (arguments server default-http-port)
+  ;; KLUDGE this is fragile, and the whole thing is much more complicated...
+  (when-bind http-server-port (getf arguments :http-server-port)
+    (awhen (find default-http-port (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)
+      (setf (hu.dwim.web-server::port-of it) http-server-port))))
+
+(def (function e) run-production-server/prepare (command-line-arguments project-system-name hdws-server hdws-application database &key
+                                                 (log-directory #P"/var/log/")
+                                                 (default-http-port hu.dwim.web-server::+default-http-server-port+))
+  (check-type database hu.dwim.rdbms:database)
   (labels ((console (format &rest args)
-             (apply 'hu.dwim.logger:log-to-console format args))
-           (ready-to-quit? (hdws-server)
-             (not (or (hu.dwim.web-server:is-server-running? hdws-server)
-                      #+nil (is-persistent-process-scheduler-running?)
-                      #+nil (hu.dwim.model:is-cluster-node-running?))))
-           ;; KLUDGE this is fragile, and the whole thing is much more complicated...
-           (process-http-server-port-command-line-argument (arguments server)
-             (when-bind http-server-port (getf arguments :http-server-port)
-               (awhen (find default-http-port (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)
-                 (setf (hu.dwim.web-server::port-of it) http-server-port)))))
-    (console "~A: Starting up server, PID is ~S" (local-time:now) (isys:getpid))
-    (process-http-server-port-command-line-argument command-line-arguments hdws-server)
+             (apply 'hu.dwim.logger:log-to-console format args)))
+    (console "~A: Preparing to start up server, PID is ~S" (local-time:now) (isys:getpid))
+    (process-http-server-port-command-line-argument command-line-arguments hdws-server default-http-port)
     (hu.dwim.logger:setup-logging-for-production (merge-pathnames (pathname (string+ (string-downcase project-system-name) "/"))
                                                                   log-directory))
     (production.info "~S speaking, starting up in production mode ~S" 'run-production-server project-system-name)
     (bind ((project-system (asdf:find-system project-system-name))
-           (project-package (find-package (system-package-name project-system)))
-           (database (if (typep database 'hu.dwim.rdbms:database)
-                         database
-                         (aprog1
-                             (make-instance database)
-                           (check-type it hu.dwim.rdbms:database)
-                           (assert (null (hu.dwim.web-server::database-of hdws-application)) () "You gave only a database type (as opposed to an instance) to ~S, but the provided web-application instance already holds a database!" 'run-production-server)
-                           (setf (hu.dwim.web-server::database-of hdws-application) it)))))
+           (project-package (find-package (system-package-name project-system))))
       (unless (member (hu.dwim.web-server::database-of hdws-application) (list nil database))
         (error "The database given to ~S and stored in the slot of the web-application instance is inconsistent!" 'run-production-server))
       (check-type project-package package)
@@ -179,7 +170,7 @@
       (ensure-default-external-format-is-utf-8)
       ;; TODO what about *terminal-io*? maybe: (setf *terminal-io* *standard-output*)
       ;; TODO: factor out the database arguments into rdbms
-      (bind (((&key pid-file test-mode swank-port swank-address repl verbose (disable-debugger #t disable-debugger-provided?) (export-model #t)
+      (bind (((&key test-mode swank-port swank-address repl verbose (disable-debugger #t disable-debugger-provided?)
                     &allow-other-keys) command-line-arguments))
         (initialize-database-connection-specification database command-line-arguments)
         (when (and swank-port
@@ -195,10 +186,6 @@
                      (list (hu.dwim.logger:make-thread-safe-stream-appender '*standard-output*)))
             (setf (hu.dwim.logger:log-level/runtime root-logger) hu.dwim.logger:+debug+)
             (production.debug "Set loggers to be verbose as requested by --verbose")))
-        (when (and (not export-model)
-                   (not repl))
-          (cerror "Start in repl mode" "Skipping ~S is only allowed in REPL mode" 'export-persistent-classes-to-database-schema)
-          (setf repl #t))
         (awhen test-mode
           (production.info "Enabling test mode")
           (setf (hu.dwim.web-server:running-in-test-mode? hdws-application) #t)
@@ -206,22 +193,40 @@
             (unless (search "-test" database-name)
               (cerror "Continue"
                       "Do you really want to start up in test mode with a database name that does not contain \"-test\"? (~S)."
-                      database-name))))
-        (when export-model
-          (production.info "Calling EXPORT-PERSISTENT-CLASSES-TO-DATABASE-SCHEMA with database ~A" database)
-          (hu.dwim.rdbms:with-database database
-            (hu.dwim.perec:with-new-compiled-query-cache
-              (hu.dwim.rdbms:with-transaction
-                (hu.dwim.perec:export-persistent-classes-to-database-schema)))))
-        (awhen (load-and-eval-config-file project-system-name)
-          (production.info "Loaded config file ~A" it))
-        (if repl
-            (sb-impl::toplevel-repl nil)
-            (with-layered-error-handlers ((lambda (error)
-                                            (print-error-safely (build-error-log-message :error-condition error
-                                                                                         :message "Error reached toplevel in the main thread"))
-                                            (unless disable-debugger
-                                              (invoke-debugger error)))
+                      database-name))))))))
+
+(def (function e) run-production-server (command-line-arguments hdws-server hdws-application database)
+  (check-type database hu.dwim.rdbms:database)
+  (labels ((console (format &rest args)
+             (apply 'hu.dwim.logger:log-to-console format args))
+           (ready-to-quit? (hdws-server)
+             (not (or (hu.dwim.web-server:is-server-running? hdws-server)
+                      #+nil (is-persistent-process-scheduler-running?)
+                      #+nil (hu.dwim.model:is-cluster-node-running?)))))
+    ;; TODO what about *terminal-io*? maybe: (setf *terminal-io* *standard-output*)
+    ;; TODO: factor out the database arguments into rdbms
+    (bind (((&key pid-file repl (disable-debugger #t) (export-model #t)
+                  &allow-other-keys) command-line-arguments))
+      (when (and (not export-model)
+                 (not repl))
+        (cerror "Start in repl mode" "Skipping ~S is only allowed in REPL mode" 'export-persistent-classes-to-database-schema)
+        (setf repl #t))
+      (when export-model
+        (production.info "Calling EXPORT-PERSISTENT-CLASSES-TO-DATABASE-SCHEMA with database ~A" database)
+        (hu.dwim.rdbms:with-database database
+          (hu.dwim.perec:with-new-compiled-query-cache
+            (hu.dwim.rdbms:with-transaction
+              (hu.dwim.perec:export-persistent-classes-to-database-schema)))))
+      #+nil
+      (awhen (load-and-eval-config-file project-system-name)
+        (production.info "Loaded config file ~A" it))
+      (if repl
+          (sb-impl::toplevel-repl nil)
+          (with-layered-error-handlers ((lambda (error)
+                                          (print-error-safely (build-error-log-message :error-condition error
+                                                                                       :message "Error reached toplevel in the main thread"))
+                                          (unless disable-debugger
+                                            (invoke-debugger error)))
                                         (lambda (&key &allow-other-keys)
                                           (print-error-safely "Calling QUIT from toplevel error handler")
                                           (quit 3)))
@@ -293,4 +298,4 @@
                         (sleep 1))
                   (hu.dwim.logger:flush-caching-appenders))))
             (production.info "Everything's down, exiting normally")
-            (console "~A: Everything's down, exiting normally" (local-time:now))))))))
+            (console "~A: Everything's down, exiting normally" (local-time:now)))))))
