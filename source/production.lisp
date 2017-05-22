@@ -132,6 +132,15 @@
 
 (def hu.dwim.logger:logger production ())
 
+(def function initialize-database-connection-specification (database command-line-arguments)
+  (bind (((&key database-host database-port database-name database-user-name database-password &allow-other-keys) command-line-arguments)
+         (connection-specification `(:host ,database-host :port ,database-port :database ,database-name :user-name ,database-user-name :password ,database-password))
+         (loggable-connection-specification (remove-from-plist connection-specification :password)))
+    (production.info "Setting the connection specification of database ~A to ~S" database loggable-connection-specification)
+    (unless (and database-host database-port database-name database-user-name database-password)
+      (warn "Database connection specification is not fully provided, which will most probably lead to an error (password omitted from logs): ~S" loggable-connection-specification))
+    (setf (hu.dwim.rdbms::connection-specification-of database) connection-specification)))
+
 (def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key
                                          (log-directory #P"/var/log/")
                                          (default-http-port hu.dwim.web-server::+default-http-server-port+)
@@ -170,11 +179,9 @@
       (ensure-default-external-format-is-utf-8)
       ;; TODO what about *terminal-io*? maybe: (setf *terminal-io* *standard-output*)
       ;; TODO: factor out the database arguments into rdbms
-      (bind (((&key database-host database-port database-name database-user-name database-password
-                    pid-file test-mode swank-port swank-address repl verbose (disable-debugger #t disable-debugger-provided?) (export-model #t)
-                    &allow-other-keys) command-line-arguments)
-             (connection-specification `(:host ,database-host :port ,database-port :database ,database-name :user-name ,database-user-name :password ,database-password))
-             (loggable-connection-specification (remove-from-plist connection-specification :password)))
+      (bind (((&key pid-file test-mode swank-port swank-address repl verbose (disable-debugger #t disable-debugger-provided?) (export-model #t)
+                    &allow-other-keys) command-line-arguments))
+        (initialize-database-connection-specification database command-line-arguments)
         (when (and swank-port
                    (not (zerop swank-port)))
           (start-swank-server swank-port :bind-address swank-address))
@@ -192,19 +199,16 @@
                    (not repl))
           (cerror "Start in repl mode" "Skipping ~S is only allowed in REPL mode" 'export-persistent-classes-to-database-schema)
           (setf repl #t))
-        (production.info "Using database connection specification ~S with database ~A" loggable-connection-specification database)
-        (unless (and database-host database-port database-name database-user-name database-password)
-          (warn "Database connection specification is not fully provided, which will most probably lead to an error (password omitted from logs): ~S" loggable-connection-specification))
-        (setf (hu.dwim.rdbms::connection-specification-of database) connection-specification)
         (awhen test-mode
           (production.info "Enabling test mode")
           (setf (hu.dwim.web-server:running-in-test-mode? hdws-application) #t)
-          (unless (search "-test" database-name)
-            (cerror "Continue"
-                    "Do you really want to start up in test mode with a database name that does not contain \"-test\"? (~S)."
-                    database-name)))
+          (bind ((database-name (getf (hu.dwim.rdbms::connection-specification-of database) :database)))
+            (unless (search "-test" database-name)
+              (cerror "Continue"
+                      "Do you really want to start up in test mode with a database name that does not contain \"-test\"? (~S)."
+                      database-name))))
         (when export-model
-          (production.info "Calling EXPORT-PERSISTENT-CLASSES-TO-DATABASE-SCHEMA with database ~A, connection-specification ~A" database loggable-connection-specification)
+          (production.info "Calling EXPORT-PERSISTENT-CLASSES-TO-DATABASE-SCHEMA with database ~A" database)
           (hu.dwim.rdbms:with-database database
             (hu.dwim.perec:with-new-compiled-query-cache
               (hu.dwim.rdbms:with-transaction
