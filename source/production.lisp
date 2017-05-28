@@ -148,14 +148,16 @@
     (awhen (find default-http-port (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)
       (setf (hu.dwim.web-server::port-of it) http-server-port))))
 
-(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application database)
-  (run-production-server/prepare command-line-arguments project-system-name hdws-server hdws-application database)
-  (run-production-server/start-services command-line-arguments hdws-server hdws-application database))
+(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application &key
+                                         (log-directory #P"/var/log/")
+                                         (default-http-port hu.dwim.web-server::+default-http-server-port+))
+  (run-production-server/prepare command-line-arguments project-system-name hdws-server hdws-application
+                                 :log-directory log-directory :default-http-port default-http-port)
+  (run-production-server/start-services command-line-arguments hdws-server hdws-application))
 
-(def (function e) run-production-server/prepare (command-line-arguments project-system-name hdws-server hdws-application database &key
+(def (function e) run-production-server/prepare (command-line-arguments project-system-name hdws-server hdws-application &key
                                                  (log-directory #P"/var/log/")
                                                  (default-http-port hu.dwim.web-server::+default-http-server-port+))
-  (check-type database hu.dwim.rdbms:database)
   (labels ((console (format &rest args)
              (apply 'hu.dwim.logger:log-to-console format args)))
     (console "~A: Preparing to start up server, PID is ~S" (local-time:now) (isys:getpid))
@@ -164,9 +166,9 @@
                                                                   log-directory))
     (production.info "~S speaking, starting up in production mode ~S" 'run-production-server project-system-name)
     (bind ((project-system (asdf:find-system project-system-name))
-           (project-package (find-package (system-package-name project-system))))
-      (unless (member (hu.dwim.web-server::database-of hdws-application) (list nil database))
-        (error "The database given to ~S and stored in the slot of the web-application instance is inconsistent!" 'run-production-server))
+           (project-package (find-package (system-package-name project-system)))
+           (database (hu.dwim.web-server::database-of hdws-application)))
+      (check-type database hu.dwim.rdbms:database)
       (check-type project-package package)
       (setf *package* project-package)
       (production.debug "*package* was set ~A" *package*)
@@ -199,8 +201,7 @@
                       "Do you really want to start up in test mode with a database name that does not contain \"-test\"? (~S)."
                       database-name))))))))
 
-(def (function e) run-production-server/start-services (command-line-arguments hdws-server hdws-application database)
-  (check-type database hu.dwim.rdbms:database)
+(def (function e) run-production-server/start-services (command-line-arguments hdws-server hdws-application)
   (labels ((console (format &rest args)
              (apply 'hu.dwim.logger:log-to-console format args))
            (ready-to-quit? (hdws-server)
@@ -209,8 +210,10 @@
                       #+nil (hu.dwim.model:is-cluster-node-running?)))))
     ;; TODO what about *terminal-io*? maybe: (setf *terminal-io* *standard-output*)
     ;; TODO: factor out the database arguments into rdbms
-    (bind (((&key pid-file repl (disable-debugger #t) (export-model #t)
+    (bind ((database (hu.dwim.web-server::database-of hdws-application))
+           ((&key pid-file repl (disable-debugger #t) (export-model #t)
                   &allow-other-keys) command-line-arguments))
+      (check-type database hu.dwim.rdbms:database)
       (when (and (not export-model)
                  (not repl))
         (cerror "Start in repl mode" "Skipping ~S is only allowed in REPL mode" 'export-persistent-classes-to-database-schema)
