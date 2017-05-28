@@ -148,6 +148,10 @@
     (awhen (find default-http-port (hu.dwim.web-server::listen-entries-of server) :key #'hu.dwim.web-server::port-of)
       (setf (hu.dwim.web-server::port-of it) http-server-port))))
 
+(def (function e) run-production-server (command-line-arguments project-system-name hdws-server hdws-application database)
+  (run-production-server/prepare command-line-arguments project-system-name hdws-server hdws-application database)
+  (run-production-server/start-services command-line-arguments hdws-server hdws-application database))
+
 (def (function e) run-production-server/prepare (command-line-arguments project-system-name hdws-server hdws-application database &key
                                                  (log-directory #P"/var/log/")
                                                  (default-http-port hu.dwim.web-server::+default-http-server-port+))
@@ -195,7 +199,7 @@
                       "Do you really want to start up in test mode with a database name that does not contain \"-test\"? (~S)."
                       database-name))))))))
 
-(def (function e) run-production-server (command-line-arguments hdws-server hdws-application database)
+(def (function e) run-production-server/start-services (command-line-arguments hdws-server hdws-application database)
   (check-type database hu.dwim.rdbms:database)
   (labels ((console (format &rest args)
              (apply 'hu.dwim.logger:log-to-console format args))
