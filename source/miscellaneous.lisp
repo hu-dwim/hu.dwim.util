@@ -32,8 +32,7 @@
   ;; (log.info "Quiting production image with status-code ~A" status-code)
   #*((:sbcl (sb-ext:exit :abort #t :code status-code))
      (:ccl (ccl:quit status-code))
-     (t #.(warn "~S is not implemented on your platform" 'quit)
-        (not-yet-implemented))))
+     (t (not-yet-implemented/crucial-api 'quit))))
 
 (def (macro e) with-keyword-package (&body body)
  `(bind ((*package* #.(find-package "KEYWORD")))
@@ -153,9 +152,12 @@
     (setf datum (concatenate 'string "Not yet implemented: " datum)))
   (apply #'cerror "Ignore and continue" datum args))
 
-(def (function e) not-yet-implemented/crucial-api (name)
+(def (function e) not-yet-implemented/form (name &key (runtime-signal-kind 'error))
   (warn "~S is not implemented on your platform! This may lead to runtime errors later..." name)
-  `(error "~S is not implemented on your platform, sorry..." ',name))
+  `(,runtime-signal-kind "~S is not implemented on your platform." ',name))
+
+(def (function e) not-yet-implemented/crucial-api (name)
+  (not-yet-implemented/form name :runtime-signal-kind 'error))
 
 (def (function e) operation-not-supported (&optional (datum "Operation not supported." datum?) &rest args)
   (when datum?

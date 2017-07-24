@@ -149,7 +149,7 @@
               (setf (sb-alien:extern-alien "lose_on_corruption_p" sb-alien:int) 1)
               (setf sb-ext:*invoke-debugger-hook* #'call-disabled-debugger-hook)
               (setf *debugger-hook* #'call-disabled-debugger-hook)))
-     (t #.(warn "~S is not fully implemented for your implementation which may lead to undesired consequences" 'disable-debugger)))
+     (t #.(not-yet-implemented/form 'disable-debugger :runtime-signal-kind 'warn)))
   (format *trace-output* "Disabled debugger~%"))
 
 
