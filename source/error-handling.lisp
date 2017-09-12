@@ -34,7 +34,7 @@
                            (out-of-storage-callback (named-lambda with-layered-error-handlers/default-out-of-storage-callback
                                                         (error &key &allow-other-keys)
                                                       (declare (optimize (debug 3)))
-                                                      ;; TODO if/when sbcl becomes more failure tolerant with stack overflows, we could try to log this using the logger infrastructure. until then, print something to *error-output* and bail out...
+                                                      ;; TODO if/when sbcl becomes more failure tolerant with stack overflows, we could try to log this using the logger infrastructure. until then, print something to *ERROR-OUTPUT* and bail out...
                                                       (when log-to-error-output
                                                         (format *error-output* "WITH-LAYERED-ERROR-HANDLERS is bailing out due to a STORAGE-CONDITION of type ~S~%" (type-of error)))
                                                       nil))
@@ -63,7 +63,7 @@
                    (return-from with-layered-error-handlers (values))))
                (apply abort-unit-of-work-callback :reason reason args))
              (handle-level-1-error (error)
-               ;; first level of error handling, call around participants, give them a chance to render an error page, etc
+               ;; first level of error handling: invoke the participants, give them a chance to respond in a domain specific way (e.g. render a HTTP error page)
                (setf level-1-error error)
                (handler-bind ((serious-condition #'handle-level-2-error))
                  (with-thread-activity-description ("HANDLE-LEVEL-1-ERROR")
@@ -94,19 +94,18 @@
                      (abort-unit-of-work reason))
                    (error "This code path must not be reached in the level 1 error handler of WITH-LAYERED-ERROR-HANDLERS"))))
              (handle-level-2-error (error)
-               ;; second level of error handling quarding against errors while handling the original error
+               ;; the second level of error handler guards against errors that happen while handling the original error.
                (handler-bind ((serious-condition #'handle-level-3-error))
                  (with-thread-activity-description ("HANDLE-LEVEL-2-ERROR")
                    (unless (ignore-error? error)
-                     ;; reason: when e.g. an error html page is being sent the client socket may get reset
+                     ;; reason: when e.g. an error html page is being sent the client the socket may get reset
                      (apply level-2-error-handler error
                             :message (list "Nested error while handling original error: ~A; the nested error is: ~A" level-1-error error)
                             args))
                    (abort-unit-of-work error)
                    (error "This code path must not be reached in the level 2 error handler of WITH-LAYERED-ERROR-HANDLERS"))))
              (handle-level-3-error (error)
-               ;; if we get here then do as little as feasible wrapped in ignore-errors to bail out and abort processing
-               ;; the request as soon as we can.
+               ;; if we reach this point then do as little as feasible, wrapped in IGNORE-ERRORS, and hope it'll manage to produce something/anthing in the logs.
                (with-thread-activity-description ("HANDLE-LEVEL-3-ERROR")
                  (bind ((error-message (or (ignore-errors
                                              (format nil "Nested error while handling original error: ~A; the second, nested error is: ~A"
@@ -122,7 +121,7 @@
       (handler-bind
           ((serious-condition #'handle-level-1-error))
         (flet ((with-layered-error-handlers/debugger-hook (condition hook)
-                 ;; this is only here because (break) ignores the *debugger-hook* variables, so it needs platform dependent care...
+                 ;; this is only here because (BREAK) ignores the *DEBUGGER-HOOK* variables, so it needs platform dependent care...
                  (declare (ignore hook))
                  (when log-to-error-output
                    (format *error-output* "~&WITH-LAYERED-ERROR-HANDLERS/DEBUGGER-HOOK is invoked, most probably because of CL:BREAK (if not, then that's a big WTF?!)~%"))
