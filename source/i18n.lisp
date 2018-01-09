@@ -151,24 +151,26 @@
                           (trie-prefix-search str ordinal :start (1+ start)))
                          (t
                           (values code 0))))))
-      
-            (iter (with end1 = (or end1 (length str1)))
-                  (with end2 = (or end2 (length str2)))
-                  (for i1 from start1 below end1)
-                  (for i2 from start2 below end2)
-                  (for len1 from 0)
-                  (for len2 from 0)
-                  (for (values ordinal1 extra1) = (ordinal-for str1 i1 end1))
-                  (for (values ordinal2 extra2) = (ordinal-for str2 i2 end2))
-                  #+nil(format t "First: ~A[~A-~A]=~A, Second: ~A[~A-~A]=~A~%"
-                               str1 i1 (+ i1 extra1) ordinal1 str2 i2 (+ i2 extra2) ordinal2)
-                  (cond
-                    ((,less-op ordinal1 ordinal2) (return #t))
-                    ((,greater-op ordinal1 ordinal2) (return #f))
-                    (t (incf i1 extra1)
-                       (incf i2 extra2)))
-                  (finally
-                   (return (,compare len1 len2)))))))))
+
+            (if (or (= end1 start1) (= end2 start2))
+                (,compare (- end1 start1) (- end2 start2))
+                (iter (with end1 = (or end1 (length str1)))
+                      (with end2 = (or end2 (length str2)))
+                      (for i1 from start1 below end1)
+                      (for i2 from start2 below end2)
+                      (for len1 from 0)
+                      (for len2 from 0)
+                      (for (values ordinal1 extra1) = (ordinal-for str1 i1 end1))
+                      (for (values ordinal2 extra2) = (ordinal-for str2 i2 end2))
+                      #+nil(format t "First: ~A[~A-~A]=~A, Second: ~A[~A-~A]=~A~%"
+                                   str1 i1 (+ i1 extra1) ordinal1 str2 i2 (+ i2 extra2) ordinal2)
+                      (cond
+                        ((,less-op ordinal1 ordinal2) (return #t))
+                        ((,greater-op ordinal1 ordinal2) (return #f))
+                        (t (incf i1 extra1)
+                           (incf i2 extra2)))
+                      (finally
+                       (return (,compare len1 len2))))))))))
 
 (def (function e) dwim-string< (str1 str2 &key (start1 0) end1 (start2 0) end2 (locale (first (cl-l10n:current-locale)))
                                                parse-decimals-p parse-roman-numerals-p)
