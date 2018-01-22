@@ -170,7 +170,7 @@
                         (t (incf i1 extra1)
                            (incf i2 extra2)))
                       (finally
-                       (return (,compare len1 len2))))))))))
+                       (return (,compare (- end1 start1) (- end2 start2)))))))))))
 
 (def (function e) dwim-string< (str1 str2 &key (start1 0) end1 (start2 0) end2 (locale (first (cl-l10n:current-locale)))
                                                parse-decimals-p parse-roman-numerals-p)
