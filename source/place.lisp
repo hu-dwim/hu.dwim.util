@@ -20,12 +20,14 @@
                  (collect nil))))
 
 (def (function e) symbol-global-value (symbol)
+  "Operates on the global binding of SYMBOL (as opposed to the thread local binding accessed by CL:SYMBOL-VALUE)."
   (check-type symbol (and symbol (not (member nil t))))
   #*((:sbcl (sb-ext:symbol-global-value symbol))
      (t #.(warn "~S is not implemented properly on your platform! This may lead to broken runtime behavior..." 'symbol-global-value)
         (symbol-value symbol))))
 
 (def (function e) (setf symbol-global-value) (value symbol)
+  "Operates on the global binding of SYMBOL (as opposed to the thread local binding accessed by CL:SYMBOL-VALUE)."
   (check-type symbol (and symbol (not (member nil t))))
   #*((:sbcl (setf (sb-ext:symbol-global-value symbol) value))
      (t #.(warn "~S is not implemented properly on your platform! This may lead to broken runtime behavior..." '(setf symbol-global-value))
