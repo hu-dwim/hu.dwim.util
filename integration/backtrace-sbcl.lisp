@@ -33,7 +33,8 @@
 (def function collect-backtrace/impl (&key (start 0) count print-frame-source &allow-other-keys)
   (unless count
     (setf count sb-debug::*backtrace-frame-count*))
-  (setf start (+ start 10))
+  ;; FIXME removed the next line because it has cut the beginning of the stacktrace
+  ;; (setf start (+ start 10))
   (bind ((backtrace ())
          (*current-backtrace-special-variable-values* (make-hash-table :test 'eq)))
     (sb-debug::map-backtrace
