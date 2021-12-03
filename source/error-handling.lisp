@@ -201,39 +201,39 @@
                                     :level-2-error-handler (lambda (nested-error2 &key &allow-other-keys)
                                                              (declare (ignore nested-error2))
                                                              (return-from building "Failed to build backtrace due to multiple nested errors. Giving up...")))
-        (with-output-to-string (*standard-output*)
-          (when timestamp
-            (format t "~%*** At: ~A" timestamp))
-          (when message
-            (format t "~&*** Message:~%")
-            (apply #'format t (ensure-list message)))
-          (awhen (current-thread-name-if-available)
-            (format t "~&*** In thread: ~A" it))
-          (when error-condition
-            (format t "~&*** Error of type ~S:~%~A" (type-of error-condition) error-condition))
-          (when include-backtrace
-            (format t "~&*** Backtrace:~%")
-            (bind ((backtrace (collect-backtrace))
-                   (*print-pretty* #f))
-              (iter (for stack-frame :in backtrace)
-                    (for index :upfrom 0)
-                    (write-string stack-frame)
-                    (terpri))))
-          (when *error-log-decorators*
-            (format t "~&*** Backtrace decorators:")
-            (with-standard-io-syntax
-              (bind ((*print-readably* #f))
-                (dolist (decorator *error-log-decorators*)
-                  (when (symbolp decorator)
-                    (bind ((*package* (find-package :keyword)))
-                      (format t "~&~S:" decorator)))
-                  (block invoking-decorator
-                    (with-layered-error-handlers ((lambda (nested-error)
-                                                    (format t "~&Error log decorator ~A signalled error: ~A." decorator nested-error))
-                                                  (lambda (&key &allow-other-keys)
-                                                    (return-from invoking-decorator))
-                                                  :level-2-error-handler (lambda (nested-error2 &key &allow-other-keys)
-                                                                           (declare (ignore nested-error2))
-                                                                           (format t "Nested errors while calling error log decorator, skipping it...")))
-                      (funcall decorator)))))))
-          (format t "~&*** End of error details"))))))
+        (bind ((*package* (find-package :keyword)))
+          (with-output-to-string (*standard-output*)
+            (when timestamp
+              (format t "~%*** At: ~A" timestamp))
+            (when message
+              (format t "~&*** Message:~%")
+              (apply #'format t (ensure-list message)))
+            (awhen (current-thread-name-if-available)
+              (format t "~&*** In thread: ~A" it))
+            (when error-condition
+              (format t "~&*** Error of type ~S:~%~A" (type-of error-condition) error-condition))
+            (when include-backtrace
+              (format t "~&*** Backtrace:~%")
+              (bind ((backtrace (collect-backtrace))
+                     (*print-pretty* #f))
+                (iter (for stack-frame :in backtrace)
+                  (for index :upfrom 0)
+                  (write-string stack-frame)
+                  (terpri))))
+            (when *error-log-decorators*
+              (format t "~&*** Backtrace decorators:")
+              (with-standard-io-syntax
+                (bind ((*print-readably* #f))
+                  (dolist (decorator *error-log-decorators*)
+                    (when (symbolp decorator)
+                      (format t "~&~S:" decorator))
+                    (block invoking-decorator
+                      (with-layered-error-handlers ((lambda (nested-error)
+                                                      (format t "~&Error log decorator ~A signalled error: ~A." decorator nested-error))
+                                                    (lambda (&key &allow-other-keys)
+                                                      (return-from invoking-decorator))
+                                                    :level-2-error-handler (lambda (nested-error2 &key &allow-other-keys)
+                                                                             (declare (ignore nested-error2))
+                                                                             (format t "Nested errors while calling error log decorator, skipping it...")))
+                        (funcall decorator)))))))
+            (format t "~&*** End of error details")))))))
