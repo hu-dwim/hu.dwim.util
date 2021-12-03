@@ -201,7 +201,7 @@
                                     :level-2-error-handler (lambda (nested-error2 &key &allow-other-keys)
                                                              (declare (ignore nested-error2))
                                                              (return-from building "Failed to build backtrace due to multiple nested errors. Giving up...")))
-        (bind ((*package* (find-package :keyword)))
+        (bind ((*package* (find-package :hu.dwim.util/error-reports)))
           (with-output-to-string (*standard-output*)
             (when timestamp
               (format t "~%*** At: ~A" timestamp))

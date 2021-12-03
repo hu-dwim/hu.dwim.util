@@ -22,3 +22,7 @@
    (hu.dwim.syntax-sugar:enable-sharp-boolean-syntax)
    (hu.dwim.syntax-sugar:enable-readtime-wrapper-syntax)
    (hu.dwim.syntax-sugar:enable-feature-cond-syntax)))
+
+(def package :hu.dwim.util/error-reports
+  (:use :common-lisp)
+  (:documentation "This package is bound to *package* while constructing error messages. Doing so makes ~S format output print fully qualified packages."))
