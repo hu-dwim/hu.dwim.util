@@ -80,7 +80,7 @@
   :defsystem-depends-on (:hu.dwim.asdf)
   :class "hu.dwim.asdf:hu.dwim.system"
   :description ""
-  :depends-on (:hu.dwim.def.namespace
+  :depends-on (:hu.dwim.def/namespace
                :hu.dwim.defclass-star+hu.dwim.def
                :hu.dwim.util)
   :components ((:module "source"
@@ -94,7 +94,7 @@
                :cxml
                :hu.dwim.def
                :hu.dwim.defclass-star+hu.dwim.def
-               :hu.dwim.def.namespace
+               :hu.dwim.def/namespace
                :hu.dwim.util)
   :components ((:module "source"
                 :components ((:file "flexml" :depends-on ("flexml-package"))
@@ -195,7 +195,7 @@
   :class "hu.dwim.asdf:hu.dwim.system"
   :description "Various utilities used by the dwim.hu team. Threading related utilities for a bit more dependency."
   :depends-on (:bordeaux-threads
-               :hu.dwim.def.namespace
+               :hu.dwim.def/namespace
                :hu.dwim.util)
   :components ((:module "source"
                 :components ((:file "threads")))))
