@@ -74,11 +74,20 @@
 (def (with-macro* e) with-profiling ()
   (-body-))
 
-(def (function e) if-symbol-exists (package name)
-  "Can be used to conditionalize at read-time like this: #+#.(hu.dwim.util:if-symbol-exists \"PKG\" \"FOO\")(pkg::foo ...)"
-  (if (and (find-package (string package))
-           (find-symbol (string name) (string package)))
-      '(:and)
+(eval-always
+  (def (function e) if-symbol-exists (package name)
+    "Can be used to conditionalize at read-time like this: #+#.(hu.dwim.util:if-symbol-exists \"PKG\" \"FOO\")(pkg::foo ...)"
+    (if (and (find-package (string package))
+             (find-symbol (string name) (string package)))
+        '(:and)
+        '(:or))))
+
+;; this "returns false" on non-sbcl hosts
+(def (function e) sbcl-version>= (&rest subversions)
+  "Can be used to conditionalize at read-time like this: #+#.(hu.dwim.util:sbcl-version>= 1 2) (some-sbcl-form ...). Reads nothing when not on SBCL."
+  (declare (ignorable subversions))
+  (or #+#.(hu.dwim.util:if-symbol-exists '#:sb-ext '#:assert-version->=)
+      (values (ignore-errors (apply #'sb-ext:assert-version->= subversions) '(:and)))
       '(:or)))
 
 (def (macro e) surround-body-when (test surround-with &body body)
