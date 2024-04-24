@@ -82,7 +82,8 @@
         '(:and)
         '(:or))))
 
-;; this "returns false" on non-sbcl hosts
+;; we need this because there's no SB-EXT:VERSION>= only SB-C::VERSION>=
+;; this "returns false" on non-sbcl hosts.
 (def (function e) sbcl-version>= (&rest subversions)
   "Can be used to conditionalize at read-time like this: #+#.(hu.dwim.util:sbcl-version>= 1 2) (some-sbcl-form ...). Reads nothing when not on SBCL."
   (declare (ignorable subversions))

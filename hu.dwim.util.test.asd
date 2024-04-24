@@ -23,5 +23,4 @@
   :components ((:module "test"
                 :components ((:file "package")
                              (:file "suite" :depends-on ("package"))
-                             (:file "util" :depends-on ("suite"))
-                             (:file "zlib" :depends-on ("suite"))))))
+                             (:file "util" :depends-on ("suite"))))))
